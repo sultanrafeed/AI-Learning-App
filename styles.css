@@ -126,3 +126,23 @@ svg.gsvg,svg.tsvg,svg.bsvg{width:100%;max-width:460px;height:auto;display:block;
 .toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 16px);transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:60;font-size:14px;max-width:90%;text-align:center}
 code,.mono{font-family:var(--mono)}
 @media (min-width:700px){.qstem{font-size:18px}}
+/* ---------- ink layer (draw / highlight / scratch) ---------- */
+.ink-layer{position:fixed;inset:0;width:100vw;height:100dvh;z-index:30;pointer-events:none}
+body.inking #app{-webkit-user-select:none;user-select:none}
+.ink-fab{position:fixed;right:calc(env(safe-area-inset-right) + 16px);bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 18px);z-index:31;width:52px;height:52px;border-radius:50%;border:0;background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.18);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ink-fab.has::after{content:"";position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.ink-bar{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top) + 6px);z-index:35;display:none;padding:0 calc(env(safe-area-inset-right) + 8px) 0 calc(env(safe-area-inset-left) + 8px)}
+.ink-row{display:flex;align-items:center;gap:4px;overflow-x:auto;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:16px;padding:6px;max-width:820px;margin:0 auto;box-shadow:0 6px 20px rgba(0,0,0,.15);scrollbar-width:none}
+.ink-row::-webkit-scrollbar{display:none}
+.ink-row button{flex:0 0 auto;min-width:44px;height:44px;border-radius:12px;border:2px solid transparent;background:transparent;font-size:19px;cursor:pointer;color:var(--text)}
+.ink-row button.on{background:var(--card2);border-color:var(--accent)}
+.ink-row .ink-col{min-width:34px;width:34px;height:34px;border-radius:50%;background:var(--c);border:3px solid var(--card)}
+.ink-row .ink-col.hl{border-radius:8px;opacity:.85}
+.ink-row .ink-col.on{outline:3px solid var(--accent);border-color:var(--card);background:var(--c)}
+.ink-sep{width:1px;height:28px;background:var(--line);flex:0 0 auto;margin:0 2px}
+.ink-done{background:var(--accent)!important;color:#fff!important;font-weight:700;font-size:15px!important;padding:0 14px}
+.ink-scratch{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.ink-scratch-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--card)}
+.ink-scratch-head button{min-width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card2);font-size:18px;cursor:pointer;color:var(--text)}
+.ink-scratch-head button.on{border-color:var(--accent);border-width:2px}
+.ink-scratch canvas{flex:1;width:100%;touch-action:none;display:block}

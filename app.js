@@ -1,6 +1,7 @@
 // AI Quest: exam coach & game for UTS 42172 Introduction to AI.
 import { grade, answerText } from "./js/grade.js";
 import { GEN, freshQuestion } from "./js/generators.js";
+import { initInk, inkPage, openScratch } from "./js/ink.js";
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -86,6 +87,7 @@ async function route() {
   app.innerHTML = (r === "quiz" || r === "mockrun" ? "" : statusLine()) + html + tabbar(tab);
   window.scrollTo(0, 0);
   bind(r, a, b);
+  inkPage(location.hash || "#home");
   if (r === "quiz") renderQuizStep();
   if (r === "mockrun") renderMock();
 }
@@ -309,7 +311,7 @@ function header() {
   const s = SESSION; const t = topicMeta(CUR.q.topic);
   const title = s.title || { play: "PLAY", calc: "CALC", traps: "TRAPS", speed: "SPEED", grave: "GRAVEYARD", weak: "WEAK", mixed: "MIXED", type: "TYPE " + s.type, diag: "Diagnostic", ids: "Check", boss: "Boss" }[s.mode] || "Practice";
   const of = s.fixed ? ` ${s.n}/${s.n + s.fixed.length}` : s.limit ? ` ${s.n}/${s.limit}` : ` #${s.n}`;
-  return `${statusLine()}<div class="row"><button class="btn ghost" id="quit">✕</button><b class="grow">${title}${of}</b><span class="timer" id="timer">0s / ${CUR.q.targetSeconds}s</span></div>`;
+  return `${statusLine()}<div class="row"><button class="btn ghost" id="quit">✕</button><b class="grow">${title}${of}</b><button class="btn ghost" id="scratchBtn" title="Scratch sheet">📝</button><span class="timer" id="timer">0s / ${CUR.q.targetSeconds}s</span></div>`;
 }
 function drawQuestion() {
   const q = CUR.q; const t = topicMeta(q.topic);
@@ -324,6 +326,7 @@ function drawQuestion() {
     <div class="muted small" style="margin-bottom:6px">${TYPE_NAMES[q.type]}${q.type === "MULTI" ? ": select all that apply" : ""} · target ${q.targetSeconds}s${q.subtopic ? " · " + esc(q.subtopic) : ""}</div>
     <div class="qstem">${q.stem}</div>${q.visual ? `<div class="qvis">${q.visual}</div>` : ""}<div id="ans">${body}</div>
     <button class="btn block" id="check" style="margin-top:12px">Check answer</button></div><div id="fb"></div>` + tabbar("practice");
+  inkPage("q:" + q.id); $("#scratchBtn").onclick = () => openScratch();
   $("#quit").onclick = () => { if (SESSION.total) finishSession(); else location.hash = "#practice"; };
   $$("[data-opt]").forEach((b) => b.onclick = () => { if (CUR.done) return; const L = b.dataset.opt;
     if (q.type === "MCQ") { CUR.resp = L; $$("[data-opt]").forEach((x) => x.classList.toggle("sel", x === b)); }
@@ -477,6 +480,7 @@ function renderMock() {
   <div class="qstem">${q.stem}</div>${q.visual ? `<div class="qvis">${q.visual}</div>` : ""}<div>${body}</div></div>
   <div class="row"><button class="btn sec" id="mprev">‹</button><button class="btn sec grow" id="mflag">${M.flag[M.cur] ? "Unflag" : "🚩 Flag"}</button><button class="btn sec" id="mnext">›</button></div>
   <button class="btn block bad" id="msubmit" style="margin-top:10px">Submit exam</button>` + tabbar("mock");
+  inkPage("q:" + q.id);
   const enter = Date.now();
   const store = () => { M.time[M.cur] += Math.round((Date.now() - enter) / 1000);
     if (q.type === "BLANK") M.resp[M.cur] = $("#mb0").value;
@@ -544,4 +548,5 @@ function bindProfile() {
 
 // ---------------- boot ----------------
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+initInk();
 route();

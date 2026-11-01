@@ -7,6 +7,7 @@ AI Quest is a game-based study app for the UTS 42172 *Introduction to Artificial
 - **Unlimited fresh calculation variants**: 97 calculation generators (UCS/GBFS/A*, entropy/IG/Gini, losses, gradient descent, Bellman/Q-learning/TD, Bayes/BN enumeration, convolution, pooling, output size, parameters, receptive field, IoU, NMS, RNN, attention and more). Answers are computed, never typed by hand.
 - **70 Learn Cards** (hook → visual → formula → worked example → memory hook → exam trap → check question), plus a cheat sheet per topic, a formula sheet, a glossary and a coverage map.
 - **Game layer**: XP, levels and ranks (Novice Node → Exam Legend), streaks with combos at 5 and 10, 3 hearts with a 60-second respawn lesson, per-topic mastery (last 10 answers), a Mistake Graveyard (mistakes come back in a new form until you get them right twice), adaptive difficulty, and a mini report every 10 questions.
+- **Draw on anything (iPad + Apple Pencil)**: tap ✏️ to pen, highlight or erase over any Learn Card, question or diagram; ink is saved per page and per question. "Pencil only" (on by default) lets fingers scroll and tap while the Pencil draws. 📝 opens a grid scratch sheet for working out calculations.
 - **Modes**: MAP, LEARN, PLAY, CALC, TRAPS, TYPE, SPEED, GRAVEYARD, WEAK, BOSS, MOCK (100 min), HALF (50 min), STATUS and CHEAT.
 
 ## Deploy to GitHub Pages (beginner steps)
