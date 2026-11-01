@@ -1,0 +1,15 @@
+{
+  "name": "AI Quest: 42172 Intro to AI Exam Coach",
+  "short_name": "AI Quest",
+  "description": "Game-based exam coach for UTS 42172 Introduction to Artificial Intelligence.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f2f2f7",
+  "theme_color": "#4f46e5",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
