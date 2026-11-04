@@ -5,13 +5,18 @@ import path from "path";
 import { GEN } from "../js/generators.js";
 import { TOPICS } from "../content/topics.mjs";
 import { extras } from "../content/extras.mjs";
+import { deep as d1 } from "../content/deep1.mjs";
+import { deep as d2 } from "../content/deep2.mjs";
+import { deep as d3 } from "../content/deep3.mjs";
+import { RULES, slidesFor, DECKS } from "../content/context.mjs";
+const DEEP = { ...d1, ...d2, ...d3 };
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const w = (p, o) => fs.writeFileSync(path.join(root, p), JSON.stringify(o, null, 0));
 const VARIANTS = 16; // generated numeric variations per calculation kind (minimum 15 per skill)
 
 const index = { version: 0, topics: [], counts: {} };
-const allCov = []; const glossary = []; const formulas = [];
+const allCov = []; const glossary = []; const formulas = []; const texSheet = [];
 let total = 0;
 for (const t of TOPICS) {
   const mod = await import(`../content/${t.id}.mjs`);
@@ -22,8 +27,19 @@ for (const t of TOPICS) {
   // ensure unique ids
   const seen = new Set();
   for (const q of qs) { if (seen.has(q.id)) throw new Error("dup id " + q.id); seen.add(q.id); }
+  // context visuals for hand-written questions that refer to a lecture example + slide links for all
+  for (const q of qs) {
+    if (!q.visual && !/-\d{4,}$/.test(q.id)) {
+      const txt = q.stem + " " + (q.left || []).join(" ");
+      const vs = []; for (const [re, v] of RULES) if (re.test(txt) && !vs.includes(v)) vs.push(v);
+      if (vs.length) q.visual = vs.slice(0, 2).join("");
+    }
+    const sl = slidesFor(q.source); if (sl.length) q.slides = sl;
+  }
   w(`data/questions/${t.id}.json`, qs);
+  for (const c of mod.learn) { const d = DEEP[c.id]; if (!d) throw new Error("no deep content for card " + c.id); Object.assign(c, d); }
   w(`data/learn/${t.id}.json`, { cards: mod.learn, cheat: mod.cheat });
+  texSheet.push(...mod.learn.filter((c) => c.tex && c.tex.length).map((c) => ({ topic: t.id, card: c.id, title: c.title, tex: c.tex })));
   (mod.coverage || []).forEach((c) => { c.topic = t.id; allCov.push(c); });
   (mod.glossary || []).forEach((g) => glossary.push({ ...g, topic: t.id }));
   (mod.formulas || []).forEach((f) => formulas.push({ ...f, topic: t.id }));
@@ -42,6 +58,8 @@ w("data/index.json", index);
 w("data/coverage.json", allCov.map(({ _q, _types, _diffs, _card, ...c }) => ({ ...c, questions: _q, types: _types, difficulties: _diffs, learnCard: _card })));
 w("data/glossary.json", glossary.sort((a, b) => a.term.localeCompare(b.term)));
 w("data/formulas.json", formulas);
+w("data/texsheet.json", texSheet);
+w("data/decks.json", DECKS.map(([id, title, topic]) => ({ id, title, topic, pages: fs.readdirSync(path.join(root, "slides", id)).length })));
 
 // Audit report
 const gaps = allCov.filter((c) => c._q < 5 || c._types < 3 || c._diffs < 2 || !c._card);
@@ -56,6 +74,8 @@ if (gaps.length) console.log(gaps.map((c) => `${c.topic}/${c.id} q=${c._q} t=${c
 
 // Service-worker asset list (every file the app needs offline) + cache version
 const assets = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png",
+  "./vendor/katex/katex.min.js", "./vendor/katex/auto-render.min.js", "./vendor/katex/katex.min.css", ...fs.readdirSync(path.join(root, "vendor/katex/fonts")).map((f) => "./vendor/katex/fonts/" + f),
+  "./data/texsheet.json", "./data/decks.json",
   ...fs.readdirSync(path.join(root, "js")).filter((f) => f.endsWith(".js")).map((f) => "./js/" + f),
   "./data/index.json", "./data/coverage.json", "./data/glossary.json", "./data/formulas.json",
   ...TOPICS.flatMap((t) => [`./data/questions/${t.id}.json`, `./data/learn/${t.id}.json`])];

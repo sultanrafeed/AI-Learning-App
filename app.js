@@ -1,7 +1,7 @@
 // AI Quest: exam coach & game for UTS 42172 Introduction to AI.
 import { grade, answerText } from "./js/grade.js";
 import { GEN, freshQuestion } from "./js/generators.js";
-import { initInk, inkPage, openScratch } from "./js/ink.js";
+import { initInk, inkPage, openScratch, inkRefresh } from "./js/ink.js";
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -29,10 +29,26 @@ const TIME_TIPS = {
   kr: "Follow member/subclass links upward and stop at the first (most specific) value.",
 };
 
+// ---------------- maths + slides ----------------
+function typeset(el = app) {
+  if (!window.renderMathInElement) return;
+  try { window.renderMathInElement(el, { delimiters: [{ left: "\\[", right: "\\]", display: true }, { left: "\\(", right: "\\)", display: false }], throwOnError: false, ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "option"] }); } catch {}
+}
+const slideSrc = (ref) => `./slides/${ref}.jpg`;
+const deckName = (id) => (DATA.decks || []).find((d) => d.id === id)?.title || id;
+function slideStrip(refs, title = "📑 From your slides") {
+  if (!refs || !refs.length) return "";
+  return `<div class="lab">${title}</div><div class="slides">${refs.map((r) => { const [d, p] = r.split("/"); return `<a class="slide" href="#slide/${d}/${p}"><img src="${slideSrc(r)}" loading="lazy" alt="${esc(deckName(d))} slide ${p}"><span>${esc(deckName(d))} · slide ${p}</span></a>`; }).join("")}</div>`;
+}
+function texBlock(tex) {
+  if (!tex || !tex.length) return "";
+  return tex.map((f) => `<div class="tex">\\[${f.t}\\]${f.where && f.where.length ? `<div class="where">${f.where.map(([sym, m]) => `<div><span class="sym">\\(${sym}\\)</span><span>${m}</span></div>`).join("")}</div>` : ""}</div>`).join("");
+}
+
 // ---------------- data ----------------
 const DATA = { index: null, q: {}, learn: {}, glossary: null, formulas: null, coverage: null };
 async function getJSON(p) { const r = await fetch(p); if (!r.ok) throw new Error(p); return r.json(); }
-async function loadIndex() { if (!DATA.index) DATA.index = await getJSON("./data/index.json"); return DATA.index; }
+async function loadIndex() { if (!DATA.index) { DATA.index = await getJSON("./data/index.json"); try { DATA.decks = await getJSON("./data/decks.json"); } catch { DATA.decks = []; } } return DATA.index; }
 async function loadQs(t) { if (!DATA.q[t]) DATA.q[t] = await getJSON(`./data/questions/${t}.json`); return DATA.q[t]; }
 async function loadAllQs() { const idx = await loadIndex(); await Promise.all(idx.topics.map((t) => loadQs(t.id))); return idx.topics.flatMap((t) => DATA.q[t.id]); }
 async function loadLearn(t) { if (!DATA.learn[t]) DATA.learn[t] = await getJSON(`./data/learn/${t}.json`); return DATA.learn[t]; }
@@ -66,7 +82,7 @@ async function route() {
   $$(".modal").forEach((m) => m.remove());
   await loadIndex();
   const [r, a, b] = (location.hash.slice(1) || "home").split("/");
-  const tab = { home: "home", world: "home", learn: "learn", card: "learn", cheat: "learn", formulas: "learn", glossary: "learn", coverage: "learn", practice: "practice", quiz: "practice", mock: "mock", mockrun: "mock", mockreview: "mock", profile: "profile" }[r] || "home";
+  const tab = { home: "home", world: "home", learn: "learn", card: "learn", cheat: "learn", slides: "learn", deck: "learn", slide: "learn", formulas: "learn", glossary: "learn", coverage: "learn", practice: "practice", quiz: "practice", mock: "mock", mockrun: "mock", mockreview: "mock", profile: "profile" }[r] || "home";
   let html = "";
   try {
     if (r === "home") html = await viewHome();
@@ -74,6 +90,9 @@ async function route() {
     else if (r === "learn") html = a ? await viewLearnTopic(a) : await viewLearn();
     else if (r === "card") html = await viewCard(a, +b);
     else if (r === "cheat") html = await viewCheat(a);
+    else if (r === "slides") html = viewSlides();
+    else if (r === "deck") html = viewDeck(a);
+    else if (r === "slide") html = viewSlide(a, +b);
     else if (r === "formulas") html = await viewFormulas();
     else if (r === "glossary") html = await viewGlossary();
     else if (r === "coverage") html = await viewCoverage();
@@ -88,6 +107,9 @@ async function route() {
   window.scrollTo(0, 0);
   bind(r, a, b);
   inkPage(location.hash || "#home");
+  typeset();
+  $$("#app img").forEach((im) => im.addEventListener("load", () => inkRefresh(), { once: true }));
+  if (r === "slide") bindSlide(a, +b);
   if (r === "quiz") renderQuizStep();
   if (r === "mockrun") renderMock();
 }
@@ -143,19 +165,23 @@ async function viewWorld(t) {
 // ---------------- views: learn ----------------
 async function viewLearn() {
   return `<h1>Learn</h1><div class="card list">${DATA.index.topics.map((t) => `<div class="item" data-go="#learn/${t.id}"><span class="ic">${t.icon}</span><div class="grow"><b>${t.name}</b><div class="muted small">${t.lecture} · ${t.world}</div></div>›</div>`).join("")}</div>
+  <div class="card list"><div class="item" data-go="#slides"><span class="ic">📑</span><div class="grow"><b>Lecture slides</b><div class="muted small">Every examined slide, page by page; draw and highlight on them with the Pencil</div></div>›</div></div>
   <div class="card list"><div class="item" data-go="#formulas"><span class="ic">∑</span><div class="grow"><b>Full formula sheet</b></div>›</div><div class="item" data-go="#glossary"><span class="ic">🔤</span><div class="grow"><b>Glossary</b></div>›</div><div class="item" data-go="#coverage"><span class="ic">🗺️</span><div class="grow"><b>Coverage map & audit</b><div class="muted small">Every concept, its source and how many questions train it</div></div>›</div></div>`;
 }
 async function viewLearnTopic(t) {
   const meta = topicMeta(t); const L = await loadLearn(t);
   return `<button class="btn ghost" data-go="#learn">‹ Learn</button><h1>${meta.icon} ${meta.name}</h1><p class="muted">${meta.lecture} · ${meta.world}</p>
   <div class="card list">${L.cards.map((c, i) => `<div class="item" data-go="#card/${t}/${i}"><span class="ic">${S.read[c.id] ? "✅" : "📄"}</span><div class="grow"><b>${c.title}</b><div class="muted small">${c.src}</div></div>›</div>`).join("")}</div>
-  <div class="row"><button class="btn sec grow" data-go="#cheat/${t}">📝 Cheat sheet</button><button class="btn grow" data-go="#world/${t}">⚔️ Practise</button></div>`;
+  <div class="row"><button class="btn sec grow" data-go="#cheat/${t}">📝 Cheat sheet</button><button class="btn grow" data-go="#world/${t}">⚔️ Practise</button></div>
+  <div class="section-title">Slides for this topic</div><div class="card list">${(DATA.decks || []).filter((d) => d.topic === t).map((d) => `<div class="item" data-go="#deck/${d.id}"><span class="ic">📑</span><div class="grow"><b>${esc(d.title)}</b><div class="muted small">${d.pages} slides</div></div>›</div>`).join("")}</div>`;
 }
-function cardHTML(c) {
+function cardHTML(c, compact = false) {
   return `<div class="card lc"><h2 style="margin-top:0">${c.title}</h2><div class="muted small">[${esc(c.src)}]</div>
   <div class="lab">1 · What it solves</div><p><b>${c.hook}</b></p>
-  <div class="lab">2 · Visual</div><div class="qvis">${c.visual || ""}</div>
-  <div class="lab">3 · Formula</div><div class="kv">${(c.formula || []).map(([a, b]) => `<b>${a}</b><span>${b}</span>`).join("")}</div>
+  ${compact ? "" : slideStrip(c.slides)}
+  <div class="lab">2 · Explained simply</div><div class="explain">${(c.explain || []).map((p) => `<p>${p}</p>`).join("")}</div>
+  ${c.visual ? `<div class="lab">Visual summary</div><div class="qvis">${c.visual}</div>` : ""}
+  <div class="lab">3 · Formulas</div>${texBlock(c.tex)}${(c.formula || []).length && !(c.tex || []).length ? `<div class="kv" style="margin-top:8px">${(c.formula || []).map(([a, b]) => `<b>${a}</b><span>${b}</span>`).join("")}</div>` : ""}
   <div class="lab">4 · Worked example</div><ol class="steps">${(c.example || []).map((s) => `<li>${s}</li>`).join("")}</ol>
   <div class="lab">5 · Memory hook</div><div class="mem">💡 ${c.memory}</div>
   <div class="lab">6 · Exam trap</div><div class="trap">⚠️ ${c.trap}</div></div>`;
@@ -168,15 +194,37 @@ async function viewCard(t, i) {
   <div class="row" style="margin-top:10px">${i > 0 ? `<button class="btn sec grow" data-go="#card/${t}/${i - 1}">‹ Prev</button>` : ""}${i < L.cards.length - 1 ? `<button class="btn sec grow" data-go="#card/${t}/${i + 1}">Next ›</button>` : `<button class="btn sec grow" data-go="#cheat/${t}">Cheat sheet ›</button>`}</div>`;
 }
 async function viewCheat(t) {
-  const L = await loadLearn(t); const ch = L.cheat; const F = DATA.formulas || (DATA.formulas = await getJSON("./data/formulas.json"));
+  const L = await loadLearn(t); const ch = L.cheat;
   return `<button class="btn ghost" data-go="#learn/${t}">‹ Back</button><h1>📝 ${ch.title}</h1>
   <div class="card"><div class="tbl-wrap"><table class="qt"><tbody>${ch.rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>
-  <div class="card"><h3 style="margin-top:0">Formulas</h3><div class="kv">${F.filter((f) => f.topic === t).map((f) => `<b>${f.name}</b><span>${f.f}${f.note ? ` <span class="muted small">(${f.note})</span>` : ""}</span>`).join("")}</div></div>
+  <div class="card"><h3 style="margin-top:0">Formulas</h3>${L.cards.filter((c) => c.tex && c.tex.length).map((c) => `<div class="small muted" style="margin-top:10px"><b>${c.title}</b></div>${texBlock(c.tex)}`).join("")}</div>
   <div class="card"><h3 style="margin-top:0">⚠️ Traps</h3><ul class="steps">${ch.traps.map((x) => `<li>${x}</li>`).join("")}</ul></div>`;
 }
 async function viewFormulas() {
-  const F = DATA.formulas || (DATA.formulas = await getJSON("./data/formulas.json"));
-  return `<button class="btn ghost" data-go="#learn">‹ Learn</button><h1>∑ Formula sheet</h1>${DATA.index.topics.map((t) => { const fs = F.filter((f) => f.topic === t.id); return fs.length ? `<div class="card"><h3 style="margin-top:0">${t.icon} ${t.name}</h3><div class="kv">${fs.map((f) => `<b>${f.name}</b><span>${f.f}${f.note ? ` <span class="muted small">(${f.note})</span>` : ""}</span>`).join("")}</div></div>` : ""; }).join("")}`;
+  const T = DATA.tex || (DATA.tex = await getJSON("./data/texsheet.json"));
+  return `<button class="btn ghost" data-go="#learn">‹ Learn</button><h1>∑ Formula sheet</h1><p class="muted small">Every formula from the Learn Cards, typeset, with what each symbol means.</p>${DATA.index.topics.map((t) => { const fs = T.filter((f) => f.topic === t.id); return fs.length ? `<div class="card"><h3 style="margin-top:0">${t.icon} ${t.name}</h3>${fs.map((f) => `<div class="small muted" style="margin-top:12px"><b>${f.title}</b></div>${texBlock(f.tex)}`).join("")}</div>` : ""; }).join("")}`;
+}
+function viewSlides() {
+  const by = {}; (DATA.decks || []).forEach((d) => (by[d.topic] = by[d.topic] || []).push(d));
+  return `<button class="btn ghost" data-go="#learn">‹ Learn</button><h1>📑 Lecture slides</h1><p class="muted small">Tap ✏️ on any slide to draw or highlight on it; your ink is saved per slide. Open a deck once online to keep it offline (or download all in Profile).</p>
+  ${DATA.index.topics.filter((t) => by[t.id]).map((t) => `<div class="section-title">${t.icon} ${t.name}</div><div class="card list">${by[t.id].map((d) => `<div class="item" data-go="#deck/${d.id}"><span class="ic">📑</span><div class="grow"><b>${esc(d.title)}</b><div class="muted small">${d.pages} slides</div></div>›</div>`).join("")}</div>`).join("")}`;
+}
+function viewDeck(id) {
+  const d = (DATA.decks || []).find((x) => x.id === id); if (!d) return `<div class="card">Deck not found.</div>`;
+  return `<button class="btn ghost" data-go="#slides">‹ All slides</button><h1>📑 ${esc(d.title)}</h1><div class="deckgrid">${Array.from({ length: d.pages }, (_, i) => `<a class="slide" href="#slide/${id}/${i + 1}"><img src="${slideSrc(id + "/" + (i + 1))}" loading="lazy" alt="slide ${i + 1}"><span>Slide ${i + 1}</span></a>`).join("")}</div>`;
+}
+function viewSlide(id, p) {
+  const d = (DATA.decks || []).find((x) => x.id === id); const n = d ? d.pages : p;
+  return `<div class="row"><button class="btn ghost" data-go="#deck/${id}">‹ ${esc(deckName(id))}</button><span class="grow"></span><span class="muted small">${p}/${n}</span></div>
+  <div class="slideview"><img id="slideimg" src="${slideSrc(id + "/" + p)}" alt="${esc(deckName(id))} slide ${p}"></div>
+  <div class="row" style="margin-top:10px">${p > 1 ? `<button class="btn sec grow" data-go="#slide/${id}/${p - 1}">‹ Previous</button>` : ""}${p < n ? `<button class="btn sec grow" data-go="#slide/${id}/${p + 1}">Next ›</button>` : ""}</div>
+  <p class="muted tiny" style="text-align:center">Swipe left/right to change slide · ✏️ to annotate</p>`;
+}
+function bindSlide(id, p) {
+  const d = (DATA.decks || []).find((x) => x.id === id); const n = d ? d.pages : p; let sx = null, sy = null;
+  const v = $(".slideview"); if (!v) return;
+  v.addEventListener("touchstart", (e) => { if (e.touches.length !== 1 || e.touches[0].touchType === "stylus") return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  v.addEventListener("touchend", (e) => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null; if (Math.abs(dx) > 70 && Math.abs(dy) < 60 && !document.body.classList.contains("inking")) { if (dx < 0 && p < n) location.hash = `#slide/${id}/${p + 1}`; if (dx > 0 && p > 1) location.hash = `#slide/${id}/${p - 1}`; } }, { passive: true });
 }
 async function viewGlossary() {
   const G = DATA.glossary || (DATA.glossary = await getJSON("./data/glossary.json"));
@@ -324,8 +372,11 @@ function drawQuestion() {
   else if (q.type === "MATCH") body = `<div class="match-right">${q.right.map((r, i) => `<div><b>${LET[i]}.</b> ${r}</div>`).join("")}</div>` + q.left.map((l, i) => `<div class="field"><label>${i + 1}. ${l}</label><select id="m${i}"><option value="">Choose…</option>${q.right.map((r, j) => `<option value="${LET[j]}">${LET[j]}. ${esc(r.replace(/<[^>]+>/g, ""))}</option>`).join("")}</select></div>`).join("");
   app.innerHTML = header() + `<div class="card pop" id="qcard"><div class="row wrap" style="gap:6px;margin-bottom:8px"><span class="chip type">[${q.type}]</span><span class="chip diff-${q.difficulty}">${q.difficulty}</span><span class="chip">${t.icon} ${t.name}</span>${q.isCalculation ? '<span class="chip">🧮 calc</span>' : ""}${q.combo ? '<span class="chip" style="background:#fde68a">⚡ COMBO ×2 XP</span>' : ""}${q.graveOf ? '<span class="chip">🪦 revenge</span>' : ""}</div>
     <div class="muted small" style="margin-bottom:6px">${TYPE_NAMES[q.type]}${q.type === "MULTI" ? ": select all that apply" : ""} · target ${q.targetSeconds}s${q.subtopic ? " · " + esc(q.subtopic) : ""}</div>
-    <div class="qstem">${q.stem}</div>${q.visual ? `<div class="qvis">${q.visual}</div>` : ""}<div id="ans">${body}</div>
+    <div class="qstem">${q.stem}</div>${q.visual ? `<div class="qvis">${q.visual}</div>` : ""}
+    ${q.slides && q.slides.length ? `<button class="btn ghost small" id="peek">📑 Peek at the slide this is based on (hint, no speed bonus)</button><div id="peekbox"></div>` : ""}<div id="ans">${body}</div>
     <button class="btn block" id="check" style="margin-top:12px">Check answer</button></div><div id="fb"></div>` + tabbar("practice");
+  typeset($("#qcard"));
+  const pk = $("#peek"); if (pk) pk.onclick = () => { CUR.peeked = true; pk.remove(); $("#peekbox").innerHTML = slideStrip(q.slides, "📑 Slide hint"); };
   inkPage("q:" + q.id); $("#scratchBtn").onclick = () => openScratch();
   $("#quit").onclick = () => { if (SESSION.total) finishSession(); else location.hash = "#practice"; };
   $$("[data-opt]").forEach((b) => b.onclick = () => { if (CUR.done) return; const L = b.dataset.opt;
@@ -352,7 +403,7 @@ function check() {
   s.total++; if (r.ok) s.correct++;
   // XP
   let xp = 0; const parts = [];
-  if (r.ok) { xp += q.isCalculation ? 20 : 10; parts.push(q.isCalculation ? "+20 calc" : "+10"); if (secs <= q.targetSeconds) { xp += 5; parts.push("+5 speed"); } if (q.graveOf) { xp += 15; parts.push("+15 fixed a past mistake"); } if (q.combo) { xp *= 2; parts.push("×2 combo"); } }
+  if (r.ok) { xp += q.isCalculation ? 20 : 10; parts.push(q.isCalculation ? "+20 calc" : "+10"); if (secs <= q.targetSeconds && !CUR.peeked) { xp += 5; parts.push("+5 speed"); } if (q.graveOf) { xp += 15; parts.push("+15 fixed a past mistake"); } if (q.combo) { xp *= 2; parts.push("×2 combo"); } }
   const prevLevel = level(); S.xp += xp;
   // streak, hearts, combo
   if (r.ok) { S.streak++; S.best = Math.max(S.best, S.streak); if (S.streak === 5 || S.streak === 10 || (S.streak > 10 && S.streak % 10 === 0)) { S.combo = 1; setTimeout(() => toast(`🔥 ${S.streak} streak! COMBO unlocked: next question is a harder bonus worth double XP.`, 3000), 400); } }
@@ -373,7 +424,7 @@ function check() {
   $("#qcard").classList.add(r.ok ? "pop" : "shake");
   markAnswers(q, r);
   $("#fb").innerHTML = feedbackHTML(q, r, xp, parts, secs) + `<button class="btn block" id="next">${S.hearts === 0 ? "💀 Respawn" : "Next question ›"}</button>`;
-  $("#check").remove();
+  $("#check").remove(); typeset($("#fb"));
   const why = $("#whybtn"); if (why) why.onclick = () => { $("#whybox").style.display = "block"; why.remove(); S.xp += 1; save(); xpFly("+1 XP"); };
   $("#next").onclick = () => afterAnswer(r.ok);
   if (level() > prevLevel) setTimeout(() => modal(`<h2>🎉 Level ${level()}!</h2><p>New rank: <b>${rank()}</b></p><button class="btn block" data-close>Keep going</button>`), 500);
@@ -398,7 +449,7 @@ function feedbackHTML(q, r, xp, parts, secs) {
   return `<div class="fb ${cls} pop"><h3>${head} ${xp ? `· +${xp} XP` : ""}</h3><div class="small">${parts.join(" · ")}</div>${statusLine()}
    ${!r.ok ? `<div><b>Answer:</b> ${answerText(q)}</div>` : ""}${r.notes.map((n) => `<div class="small">⚠️ ${n}</div>`).join("")}</div>
    <div class="card"><h3 style="margin-top:0">Full solution</h3><ol class="steps">${(q.solutionSteps || []).map((s) => `<li>${s}</li>`).join("") || `<li>${answerText(q)}</li>`}</ol>${why}
-   ${q.takeaway ? `<div class="take">🔒 ${q.takeaway}</div>` : ""}${slow}<div class="muted tiny">Source: [${esc(q.source)}]</div></div>`;
+   ${q.takeaway ? `<div class="take">🔒 ${q.takeaway}</div>` : ""}${slow}<div class="muted tiny">Source: [${esc(q.source)}]</div>${q.slides && q.slides.length && !CUR.peeked ? slideStrip(q.slides, "📑 The slides this question is based on") : ""}</div>`;
 }
 async function afterAnswer(ok) {
   const s = SESSION;
@@ -409,8 +460,9 @@ async function afterAnswer(ok) {
 }
 async function respawn() {
   const q = CUR.q; const L = await loadLearn(q.topic); const card = L.cards.find((c) => (c.cov || []).some((x) => (q.cov || []).includes(x))) || L.cards[0];
-  const m = modal(`<h2>💀 Out of hearts: Respawn</h2><p class="muted">60-second mini-lesson on what you keep missing. Read it, then retry.</p>${cardHTML(card)}<div class="bar"><i id="rbar" style="width:0%"></i></div><button class="btn block" id="rbtn" disabled style="margin-top:10px">Retry (60)</button>`);
-  let t = 60; const iv = setInterval(() => { t--; const b = $("#rbtn", m); if (!b) return clearInterval(iv); $("#rbar", m).style.width = ((60 - t) / 60) * 100 + "%"; b.textContent = t > 0 ? `Retry (${t})` : "Retry ↻"; if (t <= 0) { clearInterval(iv); b.disabled = false; } }, 1000);
+  const m = modal(`<h2>💀 Out of hearts: Respawn</h2><p class="muted">Quick recap of the idea you keep missing. Read as much as you need, then retry when you're ready.</p><button class="btn block" id="rbtn" style="margin:10px 0">Retry now ↻</button>${cardHTML(card, true)}<button class="btn block" id="rbtn2" style="margin-top:10px">Retry ↻</button>`);
+  typeset(m);
+  $("#rbtn2", m).onclick = () => $("#rbtn", m).click();
   $("#rbtn", m).onclick = async () => { m.remove(); S.hearts = 3; save(); const g = S.grave[q.graveOf || q.id]; const rq = g ? await graveQuestion(g) : q; SESSION.inject = rq; SESSION.n--; renderQuizStep(); };
 }
 function miniReport(cont) {
@@ -478,9 +530,10 @@ function renderMock() {
   <div class="qnav">${M.qs.map((_, i) => `<button data-jump="${i}" class="${answered(M.resp[i], M.qs[i]) ? "ans" : ""} ${i === M.cur ? "cur" : ""} ${M.flag[i] ? "flag" : ""}">${i + 1}</button>`).join("")}</div>
   <div class="card"><div class="row wrap" style="gap:6px;margin-bottom:8px"><span class="chip type">[${q.type}]</span><span class="chip">${t.icon} ${t.name}</span><span class="chip">Q${M.cur + 1}/${M.qs.length}</span></div><div class="muted small">${TYPE_NAMES[q.type]}${q.type === "MULTI" ? ": select all that apply" : ""}</div>
   <div class="qstem">${q.stem}</div>${q.visual ? `<div class="qvis">${q.visual}</div>` : ""}<div>${body}</div></div>
+  <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="mscratch">📝 Scratch</button></div>
   <div class="row"><button class="btn sec" id="mprev">‹</button><button class="btn sec grow" id="mflag">${M.flag[M.cur] ? "Unflag" : "🚩 Flag"}</button><button class="btn sec" id="mnext">›</button></div>
   <button class="btn block bad" id="msubmit" style="margin-top:10px">Submit exam</button>` + tabbar("mock");
-  inkPage("q:" + q.id);
+  inkPage("q:" + q.id); typeset(); $("#mscratch").onclick = () => openScratch();
   const enter = Date.now();
   const store = () => { M.time[M.cur] += Math.round((Date.now() - enter) / 1000);
     if (q.type === "BLANK") M.resp[M.cur] = $("#mb0").value;
@@ -537,9 +590,17 @@ function viewProfile() {
   <div class="card"><h3 style="margin-top:0">🪦 Mistake Graveyard (${g.length})</h3>${g.length ? `<div class="small">${g.slice(-12).map((x) => `${topicMeta(x.topic).icon} ${esc(x.sub || x.id)} · right ${x.right}/2`).join("<br>")}</div><button class="btn block" style="margin-top:8px" data-start='{"mode":"grave"}'>Replay graveyard</button>` : `<p class="muted">Empty. Wrong answers land here and come back in a new form until you get them right twice.</p>`}</div>
   <div class="card"><h3 style="margin-top:0">⚙️ Settings</h3><div class="field"><label>Full mock: number of questions (100 min)</label><input id="smc" inputmode="numeric" value="${S.settings.mockCount}"></div><div class="field"><label>Half mock: number of questions (50 min)</label><input id="shc" inputmode="numeric" value="${S.settings.halfCount}"></div><button class="btn sec block" id="ssave">Save settings</button></div>
   <div class="card"><h3 style="margin-top:0">💾 Backup</h3><p class="muted small">iOS can clear website storage. Export regularly and import to restore.</p><div class="row"><button class="btn grow" id="exp">Export progress</button><label class="btn sec grow" style="position:relative">Import<input type="file" id="imp" accept="application/json,.json" style="position:absolute;inset:0;opacity:0"></label></div><button class="btn ghost block" id="reset" style="color:var(--bad)">Reset all progress</button></div>
+  <div class="card"><h3 style="margin-top:0">📑 Slides offline</h3><p class="muted small">Slides you open are kept for offline use automatically. To keep ALL ${(DATA.decks || []).reduce((a, d) => a + d.pages, 0)} slides (about 34 MB) on this iPad, download them once on Wi-Fi.</p><button class="btn sec block" id="dlslides">Download all slides</button><div class="bar" style="margin-top:8px"><i id="dlbar" style="width:0%"></i></div></div>
   <p class="muted tiny" style="text-align:center">AI Quest · content v${idx.version} · ${idx.total} questions</p>`;
 }
 function bindProfile() {
+  $("#dlslides").onclick = async () => {
+    const refs = (DATA.decks || []).flatMap((d) => Array.from({ length: d.pages }, (_, i) => `${d.id}/${i + 1}`)); let done = 0;
+    const c = await caches.open("ai-quest-slides");
+    $("#dlslides").disabled = true;
+    for (let i = 0; i < refs.length; i += 8) { await Promise.all(refs.slice(i, i + 8).map(async (r) => { const u = slideSrc(r); if (!(await c.match(u))) { try { await c.add(u); } catch {} } done++; })); const b = $("#dlbar"); if (!b) return; b.style.width = (100 * done) / refs.length + "%"; }
+    toast("All slides saved for offline use."); $("#dlslides").textContent = "✓ All slides downloaded";
+  };
   $("#ssave").onclick = () => { S.settings.mockCount = Math.max(5, Math.min(120, parseInt($("#smc").value) || 40)); S.settings.halfCount = Math.max(5, Math.min(80, parseInt($("#shc").value) || 20)); save(); toast("Saved"); };
   $("#exp").onclick = () => { const blob = new Blob([JSON.stringify(S)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `ai-quest-progress-${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); a.remove(); };
   $("#imp").onchange = async (e) => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); if (typeof o.xp !== "number") throw 0; S = { ...structuredClone(DEF), ...o }; save(); toast("Progress imported"); route(); } catch { toast("That file is not an AI Quest backup."); } };
