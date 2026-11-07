@@ -20,3 +20,7 @@ Where the uploaded materials disagree with each other or with textbooks, the app
 - Every Book 2 number was re-checked by computer (8-queens costs, convolutions, burglary-network posteriors P(e|j,m) = 0.176, P(b|j) = 0.016, P(b|j,¬m) = 0.0051, attention outputs [0.99, 2.41]). No disagreements with the book were found.
 - Book 3's EXTRA boxes (GRU, why divide by √d_k, OOB 37%) are labelled "(Extra, not in your slides)" where they go beyond the lectures.
 - Book 1 and Book 3 both confirm the Lecture 11 slide typo already noted above (row (¬b, e, ¬a, j, m) should be 7.09 × 10⁻⁷).
+
+## AIMA textbook (Russell & Norvig, 4th ed.)
+
+- The PDF upload did not arrive, so content/aima.mjs was written from the textbook's standard worked examples (8-puzzle h1 = 8 / h2 = 18, effective branching factor 1.92, IDS 123,450 vs BFS 111,110, dentist joint table, meningitis 0.0014, 1-D convolution (5, 9, 4), node-ordering counts 13 and 31, etc.). Every number was recomputed. Items beyond the lecture slides are labelled "(Extra, not in your slides)". Sources cite the AIMA chapter.
