@@ -9,6 +9,10 @@ import { deep as d1 } from "../content/deep1.mjs";
 import { deep as d2 } from "../content/deep2.mjs";
 import { deep as d3 } from "../content/deep3.mjs";
 import { RULES, slidesFor, DECKS } from "../content/context.mjs";
+import { book2a } from "../content/book2a.mjs";
+import { book2b } from "../content/book2b.mjs";
+import { paper, PAPER } from "../content/book2paper.mjs";
+import { book3, bookCards } from "../content/book3.mjs";
 const DEEP = { ...d1, ...d2, ...d3 };
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
@@ -20,7 +24,8 @@ const allCov = []; const glossary = []; const formulas = []; const texSheet = []
 let total = 0;
 for (const t of TOPICS) {
   const mod = await import(`../content/${t.id}.mjs`);
-  const qs = [...mod.questions, ...(extras[t.id] || [])];
+  const qs = [...mod.questions, ...(extras[t.id] || []), ...(book2a[t.id] || []), ...(book2b[t.id] || []), ...(paper[t.id] || []), ...(book3[t.id] || [])];
+  mod.learn.push(...(bookCards[t.id] || []));
   if (GEN[t.id]) {
     for (const k of GEN[t.id].kinds) for (let s = 1; s <= VARIANTS; s++) qs.push(GEN[t.id].fn(s * 1009 + k.length * 31, k));
   }
@@ -37,7 +42,7 @@ for (const t of TOPICS) {
     const sl = slidesFor(q.source); if (sl.length) q.slides = sl;
   }
   w(`data/questions/${t.id}.json`, qs);
-  for (const c of mod.learn) { const d = DEEP[c.id]; if (!d) throw new Error("no deep content for card " + c.id); Object.assign(c, d); }
+  for (const c of mod.learn) { const d = DEEP[c.id]; if (!d && !c.explain) throw new Error("no deep content for card " + c.id); if (d) Object.assign(c, d); }
   w(`data/learn/${t.id}.json`, { cards: mod.learn, cheat: mod.cheat });
   texSheet.push(...mod.learn.filter((c) => c.tex && c.tex.length).map((c) => ({ topic: t.id, card: c.id, title: c.title, tex: c.tex })));
   (mod.coverage || []).forEach((c) => { c.topic = t.id; allCov.push(c); });
@@ -53,7 +58,8 @@ for (const t of TOPICS) {
     c._card = (mod.learn || []).some((card) => (card.cov || []).includes(c.id));
   }
 }
-index.total = total; index.version = Date.now();
+index.total = total; index.version = Date.now(); index.paper = PAPER;
+{ const ids = new Set(); for (const t of TOPICS) for (const q of JSON.parse(fs.readFileSync(path.join(root, `data/questions/${t.id}.json`)))) ids.add(q.id); const miss = PAPER.filter((i) => !ids.has(i)); if (miss.length) throw new Error("paper ids missing " + miss); }
 w("data/index.json", index);
 w("data/coverage.json", allCov.map(({ _q, _types, _diffs, _card, ...c }) => ({ ...c, questions: _q, types: _types, difficulties: _diffs, learnCard: _card })));
 w("data/glossary.json", glossary.sort((a, b) => a.term.localeCompare(b.term)));

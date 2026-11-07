@@ -14,4 +14,5 @@ export const TOPICS = [
   { id: "genai", name: "Generative AI", world: "Latent Lagoon", icon: "✨", lecture: "Lecture 9", weight: 5, color: "#d946ef" },
   { id: "logic", name: "Logic & Inference", world: "Logic Labyrinth", icon: "🔐", lecture: "Lecture 10", weight: 5, color: "#64748b" },
   { id: "kr", name: "Knowledge Representation", world: "Ontology Observatory", icon: "🕸️", lecture: "Lecture 12", weight: 3, color: "#14b8a6" },
+  { id: "math", name: "Maths Toolkit (Book 3)", world: "Number Nursery", icon: "🧮", lecture: "Book 3 · Part I", weight: 0, color: "#78716c" },
 ];

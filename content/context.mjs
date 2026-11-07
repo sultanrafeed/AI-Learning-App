@@ -50,7 +50,7 @@ export const RULES = [
   [/Restaurant data|Patrons|Type gives IG|every Type branch|WillWait/i, restaurant],
   [/burglary|JohnCalls|MaryCalls|P\(B \| j, m\)|s_B|s_¬B|P\(A \| ¬B, E\)|enumeration tree|Σₑ P\(E\)|P\(B \| event\)|E = true and E = false/i, burglaryBN],
   [/Pingu|Tweety|Canary|Penguin/i, birdNet],
-  [/Persons|Mary|Susan|John has an explicit/i, personsNet],
+  [/Persons|\bMary\b|Susan|John has an explicit/i, personsNet],
   [/grid world|4×3/i, gridWorld],
   [/depth-3 binary tree A\.\.O/i, tree15],
   [/Binary tree A has children B, C/i, tree7],
@@ -80,6 +80,7 @@ export function slidesFor(src = "") {
   if (/Comparing two attributes|step-by-step/i.test(src)) out.push("DT/5", "DT/7");
   const ex = [[/Enumeration Reasoning MCQ Q(\d)/, "EX1"], [/No_Burglary_Expansion MCQ Q(\d)/, "EX2"], [/Marginalisation fill-in-blanks Q(\d)/, "EX3", (q) => (q <= 3 ? 1 : 2)], [/Inference Calculation MCQs Q(\d)/, "EX4"], [/Reasoning Process Multiple Answer Quiz 3/, "EX5"], [/Bayesian_Network_Reasoning_Process_Quiz Q(\d)/, "EX6"], [/Causal and Diagnostic Directions MCQ Q(\d)/, "EX7"], [/Reasoning Process Matching Quiz Q(\d)/, "EX8"], [/Reasoning Process Multiple Answer Quiz 1/, "EX9"]];
   for (const [r, d, f] of ex) { const mm = src.match(r); if (mm) out.push(`${d}/${mm[1] ? (f ? f(+mm[1]) : +mm[1]) : 1}`); }
+  const bk = src.match(/Book ([123])[^;]*?p\. (\d+)/); if (bk) out.unshift(`B${bk[1]}/${bk[2]}`);
   return [...new Set(out)].slice(0, 4);
 }
 
@@ -90,4 +91,5 @@ export const DECKS = [
   ["L8", "Lecture 8 · Sequence modelling & attention", "seq"], ["KPRNN", "Key points: RNN hidden-state update", "seq"], ["KPATT", "Key points: attention", "attn"], ["L9", "Lecture 9 · Generative AI", "genai"],
   ["L10", "Lecture 10 · Logic & inference", "logic"], ["L11", "Lecture 11 · Bayesian networks", "bayes"], ["EX1", "Lec11 exercise: enumeration reasoning", "bayes"], ["EX2", "Lec11 exercise: no-burglary expansion", "bayes"], ["EX3", "Lec11 exercise: marginalisation", "bayes"], ["EX4", "Lec11 exercise: inference calculation", "bayes"], ["EX5", "Lec11 exercise: multiple answer 3", "bayes"], ["EX6", "Lec11 exercise: BN reasoning process", "bayes"], ["EX7", "Lec11 exercise: causal vs diagnostic", "bayes"], ["EX8", "Lec11 exercise: matching", "bayes"], ["EX9", "Lec11 exercise: multiple answer 1", "bayes"],
   ["L12", "Lecture 12 · Knowledge representation", "kr"],
+  ["B1", "Book 1 · Compiled lecture notes", "books"], ["B2", "Book 2 · Exam examples & worked explanations", "books"], ["B3", "Book 3 · AI from zero: every formula explained", "books"],
 ];

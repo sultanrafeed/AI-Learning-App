@@ -38,7 +38,7 @@ const slideSrc = (ref) => `./slides/${ref}.jpg`;
 const deckName = (id) => (DATA.decks || []).find((d) => d.id === id)?.title || id;
 function slideStrip(refs, title = "📑 From your slides") {
   if (!refs || !refs.length) return "";
-  return `<div class="lab">${title}</div><div class="slides">${refs.map((r) => { const [d, p] = r.split("/"); return `<a class="slide" href="#slide/${d}/${p}"><img src="${slideSrc(r)}" loading="lazy" alt="${esc(deckName(d))} slide ${p}"><span>${esc(deckName(d))} · slide ${p}</span></a>`; }).join("")}</div>`;
+  return `<div class="lab">${title}</div><div class="slides">${refs.map((r) => { const [d, p] = r.split("/"); return `<a class="slide" href="#slide/${d}/${p}"><img src="${slideSrc(r)}" loading="lazy" alt="${esc(deckName(d))} slide ${p}"><span>${esc(deckName(d))} · ${/^B\d$/.test(d) ? "page" : "slide"} ${p}</span></a>`; }).join("")}</div>`;
 }
 function texBlock(tex) {
   if (!tex || !tex.length) return "";
@@ -165,7 +165,7 @@ async function viewWorld(t) {
 // ---------------- views: learn ----------------
 async function viewLearn() {
   return `<h1>Learn</h1><div class="card list">${DATA.index.topics.map((t) => `<div class="item" data-go="#learn/${t.id}"><span class="ic">${t.icon}</span><div class="grow"><b>${t.name}</b><div class="muted small">${t.lecture} · ${t.world}</div></div>›</div>`).join("")}</div>
-  <div class="card list"><div class="item" data-go="#slides"><span class="ic">📑</span><div class="grow"><b>Lecture slides</b><div class="muted small">Every examined slide, page by page; draw and highlight on them with the Pencil</div></div>›</div></div>
+  <div class="card list"><div class="item" data-go="#slides"><span class="ic">📑</span><div class="grow"><b>Lecture slides & course books</b><div class="muted small">Every examined slide and every page of Books 1–3; draw and highlight on them with the Pencil</div></div>›</div></div>
   <div class="card list"><div class="item" data-go="#formulas"><span class="ic">∑</span><div class="grow"><b>Full formula sheet</b></div>›</div><div class="item" data-go="#glossary"><span class="ic">🔤</span><div class="grow"><b>Glossary</b></div>›</div><div class="item" data-go="#coverage"><span class="ic">🗺️</span><div class="grow"><b>Coverage map & audit</b><div class="muted small">Every concept, its source and how many questions train it</div></div>›</div></div>`;
 }
 async function viewLearnTopic(t) {
@@ -207,11 +207,12 @@ async function viewFormulas() {
 function viewSlides() {
   const by = {}; (DATA.decks || []).forEach((d) => (by[d.topic] = by[d.topic] || []).push(d));
   return `<button class="btn ghost" data-go="#learn">‹ Learn</button><h1>📑 Lecture slides</h1><p class="muted small">Tap ✏️ on any slide to draw or highlight on it; your ink is saved per slide. Open a deck once online to keep it offline (or download all in Profile).</p>
+  ${by.books ? `<div class="section-title">📚 Course books (Books 1–3)</div><div class="card list">${by.books.map((d) => `<div class="item" data-go="#deck/${d.id}"><span class="ic">📘</span><div class="grow"><b>${esc(d.title)}</b><div class="muted small">${d.pages} pages</div></div>›</div>`).join("")}</div>` : ""}
   ${DATA.index.topics.filter((t) => by[t.id]).map((t) => `<div class="section-title">${t.icon} ${t.name}</div><div class="card list">${by[t.id].map((d) => `<div class="item" data-go="#deck/${d.id}"><span class="ic">📑</span><div class="grow"><b>${esc(d.title)}</b><div class="muted small">${d.pages} slides</div></div>›</div>`).join("")}</div>`).join("")}`;
 }
 function viewDeck(id) {
   const d = (DATA.decks || []).find((x) => x.id === id); if (!d) return `<div class="card">Deck not found.</div>`;
-  return `<button class="btn ghost" data-go="#slides">‹ All slides</button><h1>📑 ${esc(d.title)}</h1><div class="deckgrid">${Array.from({ length: d.pages }, (_, i) => `<a class="slide" href="#slide/${id}/${i + 1}"><img src="${slideSrc(id + "/" + (i + 1))}" loading="lazy" alt="slide ${i + 1}"><span>Slide ${i + 1}</span></a>`).join("")}</div>`;
+  return `<button class="btn ghost" data-go="#slides">‹ All slides</button><h1>📑 ${esc(d.title)}</h1><div class="deckgrid">${Array.from({ length: d.pages }, (_, i) => `<a class="slide" href="#slide/${id}/${i + 1}"><img src="${slideSrc(id + "/" + (i + 1))}" loading="lazy" alt="slide ${i + 1}"><span>${/^B\d$/.test(id) ? "Page" : "Slide"} ${i + 1}</span></a>`).join("")}</div>`;
 }
 function viewSlide(id, p) {
   const d = (DATA.decks || []).find((x) => x.id === id); const n = d ? d.pages : p;
@@ -239,7 +240,7 @@ async function viewCoverage() {
 
 // ---------------- practice menu ----------------
 function viewPractice() {
-  const tp = DATA.index.topics;
+  const tp = DATA.index.topics.filter((t) => t.weight > 0);
   const sel = (id) => `<select id="${id}">${tp.map((t) => `<option value="${t.id}">${t.icon} ${t.name}</option>`).join("")}</select>`;
   setTimeout(() => {
     $("#go-play")?.addEventListener("click", () => startSession({ mode: "play", topic: $("#pt").value }));
@@ -373,10 +374,15 @@ function drawQuestion() {
   app.innerHTML = header() + `<div class="card pop" id="qcard"><div class="row wrap" style="gap:6px;margin-bottom:8px"><span class="chip type">[${q.type}]</span><span class="chip diff-${q.difficulty}">${q.difficulty}</span><span class="chip">${t.icon} ${t.name}</span>${q.isCalculation ? '<span class="chip">🧮 calc</span>' : ""}${q.combo ? '<span class="chip" style="background:#fde68a">⚡ COMBO ×2 XP</span>' : ""}${q.graveOf ? '<span class="chip">🪦 revenge</span>' : ""}</div>
     <div class="muted small" style="margin-bottom:6px">${TYPE_NAMES[q.type]}${q.type === "MULTI" ? ": select all that apply" : ""} · target ${q.targetSeconds}s${q.subtopic ? " · " + esc(q.subtopic) : ""}</div>
     <div class="qstem">${q.stem}</div>${q.visual ? `<div class="qvis">${q.visual}</div>` : ""}
-    ${q.slides && q.slides.length ? `<button class="btn ghost small" id="peek">📑 Peek at the slide this is based on (hint, no speed bonus)</button><div id="peekbox"></div>` : ""}<div id="ans">${body}</div>
+    <button class="btn ghost small" id="peek">📑 Peek at a slide for this (hint, no speed bonus)</button><div id="peekbox"></div><div id="ans">${body}</div>
     <button class="btn block" id="check" style="margin-top:12px">Check answer</button></div><div id="fb"></div>` + tabbar("practice");
   typeset($("#qcard"));
-  const pk = $("#peek"); if (pk) pk.onclick = () => { CUR.peeked = true; pk.remove(); $("#peekbox").innerHTML = slideStrip(q.slides, "📑 Slide hint"); };
+  const pk = $("#peek"); if (pk) pk.onclick = async () => {
+    // Book 2/3 pages print the answer next to the question, so hints use lecture slides only.
+    let refs = (q.slides || []).filter((r) => !/^B[123]\//.test(r));
+    if (!refs.length) { const L = await loadLearn(q.topic); const c = L.cards.find((c) => (c.cov || []).some((x) => (q.cov || []).includes(x)) && (c.slides || []).some((r) => !/^B[23]\//.test(r))); refs = c ? c.slides.filter((r) => !/^B[23]\//.test(r)).slice(0, 3) : []; }
+    CUR.peeked = true; pk.remove(); $("#peekbox").innerHTML = refs.length ? slideStrip(refs, "📑 Slide hint") : `<div class="muted small">No slide for this one: open the Learn Card after answering.</div>`; typeset($("#peekbox"));
+  };
   inkPage("q:" + q.id); $("#scratchBtn").onclick = () => openScratch();
   $("#quit").onclick = () => { if (SESSION.total) finishSession(); else location.hash = "#practice"; };
   $$("[data-opt]").forEach((b) => b.onclick = () => { if (CUR.done) return; const L = b.dataset.opt;
@@ -449,7 +455,7 @@ function feedbackHTML(q, r, xp, parts, secs) {
   return `<div class="fb ${cls} pop"><h3>${head} ${xp ? `· +${xp} XP` : ""}</h3><div class="small">${parts.join(" · ")}</div>${statusLine()}
    ${!r.ok ? `<div><b>Answer:</b> ${answerText(q)}</div>` : ""}${r.notes.map((n) => `<div class="small">⚠️ ${n}</div>`).join("")}</div>
    <div class="card"><h3 style="margin-top:0">Full solution</h3><ol class="steps">${(q.solutionSteps || []).map((s) => `<li>${s}</li>`).join("") || `<li>${answerText(q)}</li>`}</ol>${why}
-   ${q.takeaway ? `<div class="take">🔒 ${q.takeaway}</div>` : ""}${slow}<div class="muted tiny">Source: [${esc(q.source)}]</div>${q.slides && q.slides.length && !CUR.peeked ? slideStrip(q.slides, "📑 The slides this question is based on") : ""}</div>`;
+   ${q.takeaway ? `<div class="take">🔒 ${q.takeaway}</div>` : ""}${slow}<div class="muted tiny">Source: [${esc(q.source)}]</div>${q.slides && q.slides.length ? slideStrip(q.slides, /^B[123]\//.test(q.slides[0]) ? "📘 The book page this question comes from (full worked answer)" : "📑 The slides this question is based on") : ""}</div>`;
 }
 async function afterAnswer(ok) {
   const s = SESSION;
@@ -495,12 +501,15 @@ function viewMock() {
   ${a ? `<div class="card"><b>Exam in progress</b><div class="muted small">${a.kind} · started ${new Date(a.start).toLocaleTimeString()}</div><button class="btn block" style="margin-top:8px" data-go="#mockrun">Resume</button></div>` : ""}
   <div class="card"><h2 style="margin-top:0">⏱️ MOCK: full exam</h2><p class="muted">100 minutes · ${S.settings.mockCount} questions (change in Profile) · all six question types in the exam mix · topics weighted toward the hand-calculation topics. No feedback until you submit.</p><button class="btn block" data-mock="full">Start 100-minute mock</button></div>
   <div class="card"><h2 style="margin-top:0">⏱️ HALF mock</h2><p class="muted">50 minutes · ${S.settings.halfCount} questions · same rules.</p><button class="btn block sec" data-mock="half">Start 50-minute half mock</button></div>
+  <div class="card"><h2 style="margin-top:0">📘 Book 2 practice paper</h2><p class="muted">The fixed 40-question mixed paper from Book 2 (Exam Examples), Chapter 13 · 100 minutes · every examined module · full worked answers in the review.</p><button class="btn block sec" data-mock="paper">Start the Book 2 paper</button></div>
   <div class="card"><b>Before you start</b><ul class="steps small"><li>Note your start time (it is also recorded automatically).</li><li>Use only what the real exam allows (calculator if permitted).</li><li>The real question count is not confirmed: change it in Profile → Settings if you learn it.</li></ul></div>
   ${S.mocks.length ? `<h2>History</h2><div class="card list">${S.mocks.map((m, i) => `<div class="item" data-go="#mockreview/${i}"><span class="ic">📄</span><div class="grow"><b>${m.kind} · ${m.pct}%</b><div class="muted small">${new Date(m.start).toLocaleString()} · ${m.used} min used</div></div>›</div>`).reverse().join("")}</div>` : ""}`;
 }
 async function startMock(kind) {
   if (S.activeMock && !confirm("Replace the mock in progress?")) return;
-  const all = await loadAllQs(); const N = kind === "full" ? S.settings.mockCount : S.settings.halfCount; const mins = kind === "full" ? 100 : 50;
+  const all = await loadAllQs();
+  if (kind === "paper") { const qs = DATA.index.paper.map((id) => all.find((q) => q.id === id)).filter(Boolean); S.activeMock = { kind: "BOOK 2 PRACTICE PAPER", start: Date.now(), mins: 100, qs, resp: qs.map(initResp), time: qs.map(() => 0), flag: qs.map(() => false), cur: 0 }; save(); location.hash = "#mockrun"; return; }
+  const N = kind === "full" ? S.settings.mockCount : S.settings.halfCount; const mins = kind === "full" ? 100 : 50;
   const mix = { MCQ: 0.4, MULTI: 0.15, TF: 0.15, BLANK: 0.1, BLANKS: 0.1, MATCH: 0.1 };
   const types = []; for (const [t, p] of Object.entries(mix)) for (let i = 0; i < Math.round(p * N); i++) types.push(t);
   while (types.length < N) types.push("MCQ"); types.length = N;
@@ -509,7 +518,7 @@ async function startMock(kind) {
     for (let tries = 0; tries < 30; tries++) {
       const t = weightedTopic(0); const pool = all.filter((q) => q.topic === t && q.type === ty && !used.has(q.id) && q.difficulty !== "Easy");
       if (pool.length) { const q = rnd(preferUnseen(pool)); used.add(q.id); qs.push(q); break; }
-      if (tries === 29) { const p2 = all.filter((q) => q.type === ty && !used.has(q.id)); const q = rnd(p2); used.add(q.id); qs.push(q); }
+      if (tries === 29) { const p2 = all.filter((q) => q.type === ty && !used.has(q.id) && q.topic !== "math"); const q = rnd(p2); used.add(q.id); qs.push(q); }
     }
   }
   S.activeMock = { kind: kind === "full" ? "MOCK (100 min)" : "HALF (50 min)", start: Date.now(), mins, qs, resp: qs.map(initResp), time: qs.map(() => 0), flag: qs.map(() => false), cur: 0 };
@@ -590,7 +599,7 @@ function viewProfile() {
   <div class="card"><h3 style="margin-top:0">🪦 Mistake Graveyard (${g.length})</h3>${g.length ? `<div class="small">${g.slice(-12).map((x) => `${topicMeta(x.topic).icon} ${esc(x.sub || x.id)} · right ${x.right}/2`).join("<br>")}</div><button class="btn block" style="margin-top:8px" data-start='{"mode":"grave"}'>Replay graveyard</button>` : `<p class="muted">Empty. Wrong answers land here and come back in a new form until you get them right twice.</p>`}</div>
   <div class="card"><h3 style="margin-top:0">⚙️ Settings</h3><div class="field"><label>Full mock: number of questions (100 min)</label><input id="smc" inputmode="numeric" value="${S.settings.mockCount}"></div><div class="field"><label>Half mock: number of questions (50 min)</label><input id="shc" inputmode="numeric" value="${S.settings.halfCount}"></div><button class="btn sec block" id="ssave">Save settings</button></div>
   <div class="card"><h3 style="margin-top:0">💾 Backup</h3><p class="muted small">iOS can clear website storage. Export regularly and import to restore.</p><div class="row"><button class="btn grow" id="exp">Export progress</button><label class="btn sec grow" style="position:relative">Import<input type="file" id="imp" accept="application/json,.json" style="position:absolute;inset:0;opacity:0"></label></div><button class="btn ghost block" id="reset" style="color:var(--bad)">Reset all progress</button></div>
-  <div class="card"><h3 style="margin-top:0">📑 Slides offline</h3><p class="muted small">Slides you open are kept for offline use automatically. To keep ALL ${(DATA.decks || []).reduce((a, d) => a + d.pages, 0)} slides (about 34 MB) on this iPad, download them once on Wi-Fi.</p><button class="btn sec block" id="dlslides">Download all slides</button><div class="bar" style="margin-top:8px"><i id="dlbar" style="width:0%"></i></div></div>
+  <div class="card"><h3 style="margin-top:0">📑 Slides offline</h3><p class="muted small">Slides you open are kept for offline use automatically. To keep ALL ${(DATA.decks || []).reduce((a, d) => a + d.pages, 0)} slides (about 62 MB, including the three books) on this iPad, download them once on Wi-Fi.</p><button class="btn sec block" id="dlslides">Download all slides</button><div class="bar" style="margin-top:8px"><i id="dlbar" style="width:0%"></i></div></div>
   <p class="muted tiny" style="text-align:center">AI Quest · content v${idx.version} · ${idx.total} questions</p>`;
 }
 function bindProfile() {
