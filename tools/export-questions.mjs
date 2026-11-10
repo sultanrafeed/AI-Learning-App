@@ -54,12 +54,14 @@ const fmtAns = (q) => {
   return JSON.stringify(q.answer);
 };
 const isGen = (q) => /-\d{4,}$/.test(q.id);
-let out = `# AI Quest: every question in the app (42172 Introduction to AI)\n\nGenerated ${new Date().toISOString().slice(0, 10)} from the app's question bank. Each question shows its type, difficulty and source, then the answer and the worked solution.\nTypes: MCQ (one answer), MULTI (select all that apply), TF (true/false), BLANK (fill one blank), BLANKS (fill several), MATCH (matching).\nPart A of each topic = hand-written questions (lectures, workshops, key-points sheets, class exercises, Books 1-3, AIMA). Part B = computer-generated calculation drills (fresh numbers for every skill).\n\n## Contents\n\n`;
+const ONLY = process.argv[3] || ""; // optional difficulty filter, e.g. "Exam+"
+let out = `# AI Quest: ${ONLY ? ONLY + " questions only" : "every question in the app"} (42172 Introduction to AI)\n\nGenerated ${new Date().toISOString().slice(0, 10)} from the app's question bank. Each question shows its type, difficulty and source, then the answer and the worked solution.\nTypes: MCQ (one answer), MULTI (select all that apply), TF (true/false), BLANK (fill one blank), BLANKS (fill several), MATCH (matching).\nPart A of each topic = hand-written questions (lectures, workshops, key-points sheets, class exercises, Books 1-3, AIMA). Part B = computer-generated calculation drills (fresh numbers for every skill).\n\n## Contents\n\n`;
 const counts = [];
 let body = "";
 let n = 0;
 for (const t of idx.topics) {
-  const qs = JSON.parse(fs.readFileSync(root + `data/questions/${t.id}.json`));
+  const qs = JSON.parse(fs.readFileSync(root + `data/questions/${t.id}.json`)).filter((q) => !ONLY || q.difficulty === ONLY);
+  if (!qs.length) continue;
   const hand = qs.filter((q) => !isGen(q)), gen = qs.filter(isGen);
   counts.push(`- ${t.icon} ${t.name} (${t.lecture}): ${hand.length} hand-written + ${gen.length} calculation drills`);
   body += `\n\n---\n\n# ${t.icon} ${t.name} (${t.lecture})\n`;
@@ -94,6 +96,6 @@ for (const t of idx.topics) {
 const all = {}; for (const t of idx.topics) for (const q of JSON.parse(fs.readFileSync(root + `data/questions/${t.id}.json`))) all[q.id] = q;
 let paper = `\n\n---\n\n# 📘 Book 2 mixed practice paper (40 questions, 100 minutes): answer key\n\n`;
 idx.paper.forEach((id, i) => { const q = all[id]; paper += `${i + 1}. ${clean(q.stem).replace(/\n+/g, " ")}\n   **Answer:** ${fmtAns(q)}\n`; });
-out += counts.join("\n") + `\n- 📘 Book 2 mixed practice paper: answer key at the end\n\n**Total: ${n} questions.**\n` + body + paper;
+out += counts.join("\n") + (ONLY ? "\n" : `\n- 📘 Book 2 mixed practice paper: answer key at the end\n`) + `\n**Total: ${n} questions.**\n` + body + (ONLY ? "" : paper);
 fs.writeFileSync(process.argv[2], out);
 console.log(n, (out.length / 1e6).toFixed(2) + " MB");
