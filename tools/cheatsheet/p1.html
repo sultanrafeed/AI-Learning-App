@@ -1,0 +1,105 @@
+<h1>AI Exam Cheat Sheet: how to answer every question type</h1>
+<div class="sub">42172 Introduction to AI · open book · built from your lectures, workshops, key-points sheets, class exercises, Books 1–3 and AIMA. <b>Find the card</b> from what the question <i>gives you</i>, then follow the steps.
+<span style="color:#ca8a04">■ yellow = what it means in plain English</span> · <span style="color:#15803d">green = how to spot it</span> · <span style="color:#1d4ed8">blue = formula / worked example</span> · <span style="color:#b91c1c">red ✗ = traps</span> · <span style="color:#6d28d9">purple ★ = shortcuts</span> · grey box = true/false facts the exam likes.</div>
+
+<div class="banner"><b>The exam:</b> 100 min · 20% · all modules except Module 1 (Lecture 1 not examined) · questions drawn at random from a bank · types: MCQ, multiple answer, true/false, fill one blank, fill several blanks, matching · bring a log-capable calculator, printed notes, photo ID.
+<b>Time:</b> ~40 questions ≈ 2.5 min each. Do concept questions fast, bank time for calculations. Never leave a blank (no sign of negative marking).
+<b>Per type:</b> <b>MCQ</b> compute first, then look at the options (wrong options = typical slips). <b>Multiple answer</b> treat every option as its own true/false. <b>T/F</b> watch "always / never / guarantees / any". <b>Fill blank</b> give exactly the rounding asked; names spelled as in the slides. <b>Matching</b> write both columns on scrap paper, cross off; a right-hand item can be reused.</div>
+
+<table class="idx"><tr><th colspan="2">If the question gives you…</th><th>Card</th><th colspan="2">If the question gives you…</th><th>Card</th></tr>
+<tr><td colspan="2">Graph with edge costs + h values, "expansion order", "f(n)", "path cost returned"</td><td class="c">1 Search</td><td colspan="2">Grid with U values, "compute Q(s, Up)", slip 0.1</td><td class="c">16 MDP Q</td></tr>
+<tr><td colspan="2">"Is h admissible / consistent?", "which is complete / optimal", BFS/DFS order</td><td class="c">2 Heuristics</td><td colspan="2">γ, discounted sum, MEU routes, value / policy iteration</td><td class="c">17 Bellman</td></tr>
+<tr><td colspan="2">Hill climbing, SA temperature, GA fitness, roulette, tournament, 8-queens</td><td class="c">3 Local</td><td colspan="2">TD update, ADP counts, reward-to-go, Q-learning update, explore/exploit</td><td class="c">18 RL</td></tr>
+<tr><td colspan="2">[a+, b−] counts, entropy, Gini, IG, "which attribute"</td><td class="c">4 Trees</td><td colspan="2">Word counts per class, |V|, add-one, P(+|text), spam/ham</td><td class="c">19 Naive Bayes</td></tr>
+<tr><td colspan="2">w, ∂L/∂w, α; h(x) = w₁x + w₀; logistic, cross-entropy</td><td class="c">5 GD</td><td colspan="2">x, w_x, h_prev, w_h, tanh value supplied; "× 0.8 for 30 steps"; LSTM gates</td><td class="c">20 RNN</td></tr>
+<tr><td colspan="2">Confusion matrix; y vs ŷ table; "which metric"; k-fold, leakage</td><td class="c">6 Metrics</td><td colspan="2">One-hot, embedding E, n-gram counts, CBOW, many-to-one</td><td class="c">21 Text</td></tr>
+<tr><td colspan="2">Query point + labelled points; SVM w, b, margin; random forest / boosting</td><td class="c">6B kNN·SVM</td><td colspan="2">q, keys, values, d_k; or just weights + values</td><td class="c">22 Attention</td></tr>
+<tr><td colspan="2">Neuron weights, perceptron update, network a₃ a₄ … ŷ, Δ₅, parameters</td><td class="c">7 NN</td><td colspan="2">Raw scores → softmax weight; scale by √d_k</td><td class="c">23 Softmax</td></tr>
+<tr><td colspan="2">σ, ReLU, tanh, FVSBN, autoencoder, VAE μ σ KL, GAN, diffusion</td><td class="c">8 Act · GenAI</td><td colspan="2">Experiments count, full joint table, "sum out"</td><td class="c">13 Probability</td></tr>
+<tr><td colspan="2">Input grid + kernel, "output[r,c]", max / average pooling</td><td class="c">9 Conv</td><td colspan="2">Burglary CPTs, P(B | j, ¬m), enumeration</td><td class="c">14 BN</td></tr>
+<tr><td colspan="2">Conv2d(…) → ReLU → MaxPool2d → Flatten → Linear chain</td><td class="c">10 Shapes</td><td colspan="2">Causal vs diagnostic, Bayes' rule, independence, query/evidence/hidden</td><td class="c">15 Bayes</td></tr>
+<tr><td colspan="2">"How many trainable parameters", receptive field</td><td class="c">11 Params</td><td colspan="2">P ⇒ Q, truth table, CNF, resolution, FOL ∀ ∃, UI/EI</td><td class="c">24 Logic</td></tr>
+<tr><td colspan="2">Box corners, IoU, NMS + threshold, YOLO, crops; AlexNet/VGG/ResNet</td><td class="c">12 Detection</td><td colspan="2">Semantic network, inheritance, ontology, RDF triple, SPARQL</td><td class="c">25 KR</td></tr>
+<tr><td colspan="2" style="background:#fef2f2">Not sure which card? → <b>26 Traps bank</b> (T/F favourites) and <b>27 Confusables</b></td><td class="c">26–27</td><td colspan="2" style="background:#fef2f2">Last 2 minutes → <b>28 Before you submit</b> checklist</td><td class="c">28</td></tr></table>
+
+<div class="cols">
+
+<div class="card small"><div class="ch"><span class="num">0</span><span class="ct">Calculator &amp; numbers to recognise</span><span class="lec">Book 3 Part I</span></div>
+<div class="mean">Most "hard" questions are just these 6 calculator keys used in the right order. Keep 4 decimal places until the end, then round as asked.</div>
+<table><tr><th>Need</th><th>Key / rule</th><th>Check value</th></tr>
+<tr><td>log₂x</td><td><span class="key">ln</span>x ÷ <span class="key">ln</span>2</td><td>log₂(1/3) = −1.585</td></tr>
+<tr><td>eˣ</td><td><span class="key">SHIFT</span>+<span class="key">ln</span></td><td>e⁻¹ = 0.368, e² = 7.389</td></tr>
+<tr><td>σ(z)</td><td>1 ÷ (1 + e^(−z))</td><td>σ(0.6) = 0.646</td></tr>
+<tr><td>powers</td><td><span class="key">xʸ</span></td><td>0.8³⁰ = 0.00124</td></tr>
+<tr><td>√</td><td><span class="key">√</span></td><td>√2 = 1.414, 1/√2 = 0.707</td></tr>
+<tr><td>%</td><td>×100 only if asked "as %"</td><td>88/5000 = 1.76%</td></tr></table>
+<table class="mini"><tr><th>z</th><td>−2</td><td>−1</td><td>−0.4</td><td>0</td><td>0.5</td><td>0.6</td><td>1</td><td>2</td></tr>
+<tr><th>σ(z)</th><td>.119</td><td>.269</td><td>.401</td><td>.500</td><td>.622</td><td>.646</td><td>.731</td><td>.881</td></tr></table>
+<table class="mini"><tr><th>x</th><td>0.3</td><td>0.5</td><td>0.7</td><td>0.8</td><td>1</td><td>1.1</td></tr><tr><th>tanh</th><td>.291</td><td>.462</td><td>.604</td><td>.664</td><td>.762</td><td>.800</td></tr></table>
+<table class="mini"><tr><th>p</th><td>0.1</td><td>0.2</td><td>0.3</td><td>0.5</td><td>0.6</td><td>0.7</td><td>0.8</td><td>0.9</td></tr><tr><th>ln p</th><td>−2.303</td><td>−1.609</td><td>−1.204</td><td>−0.693</td><td>−0.511</td><td>−0.357</td><td>−0.223</td><td>−0.105</td></tr></table>
+<div class="trap">✗ log₂ for entropy · ln for cross-entropy, KL, GAN loss · log₁₀ (the plain <span class="key">log</span> key) is almost never right.</div>
+<div class="tip">★ max = the biggest VALUE; argmax = WHICH input gives it (policies use argmax). ŷ = prediction, ȳ = average, x₂ = 2nd input (label), x² = power.</div></div>
+
+<div class="card"><div class="ch"><span class="num">1</span><span class="ct">Search: UCS · Greedy · A*</span><span class="lec">Lecture 2</span></div>
+<div class="mean">You walk a map. g(n) = cost already travelled to n. h(n) = a guess of the cost still to go. Each algorithm always expands the frontier node with the smallest score; they differ only in the score.</div>
+<div class="spot">Spot it: graph, edge costs, h(n) under nodes, "expansion order", "path returned", "f(n) = ___".</div>
+<table><tr><th>Algorithm</th><th>Score (pick smallest)</th><th>Frontier</th></tr>
+<tr><td>BFS</td><td>shallowest (oldest)</td><td>FIFO queue</td></tr><tr><td>DFS</td><td>deepest (newest)</td><td>LIFO stack</td></tr>
+<tr><td>UCS</td><td>f = g(n)</td><td>priority queue</td></tr><tr><td>Greedy best-first</td><td>f = h(n) (ignores g)</td><td>priority queue</td></tr>
+<tr><td>A*</td><td>f = g(n) + h(n)</td><td>priority queue</td></tr></table>
+<ol><li>Table: <b>Step | Expand (g, h, f) | Frontier after | Explored</b>.</li>
+<li>Expand the smallest score. Add each neighbour with g_child = g_parent + edge cost and its score.</li>
+<li>Neighbour already on the frontier with a bigger g? Replace it with the cheaper one. Never re-add explored nodes (graph search).</li>
+<li>Tie → alphabetical (unless told otherwise). <b>UCS / A*: stop when G is selected (popped), not when it is added.</b> BFS: goal test when generated.</li>
+<li>Path cost = add every edge on the returned path.</li></ol>
+<div class="ex"><b class="t">Romania A*:</b> Arad 0+366 = 366 → Sibiu 140+253 = <b>393</b>, Timișoara 118+329 = 447, Zerind 75+374 = 449 → expand Sibiu → Rimnicu V. 220+193 = <b>413</b>, Făgăraș 239+176 = 415, Oradea 291+380 = 671 → expand RV → Pitești 317+100 = <b>417</b>, Craiova 366+160 = 526 → expand Făgăraș (415) → Bucharest 450 → expand Pitești (417) → Bucharest 418 replaces 450 → pop Bucharest <b>418</b>: A–S–RV–P–B.<br>
+<b class="t">Greedy</b> (h only): Arad → Sibiu 253 → Făgăraș 176 → Bucharest 0 = path cost 140+99+211 = <b>450</b> (not optimal). <b class="t">UCS</b> order: A 0, Z 75, T 118, S 140, O 146, RV 220, L 229, F 239, M 299, P 317, C 366, D 374, B 418. <b class="t">BFS</b> returns A–S–F–B (3 actions, 450).</div>
+<div class="ex"><b class="t">Small graph</b> (S–A 2, S–B 5, A–C 2, A–D 6, B–D 1, C–G 7, D–G 2; h: S6 A5 B3 C6 D2 G0): UCS expands S0, A2, C4, B5, D6 (D 8→6 replaced), G8 → S–B–D–G = 8. A*: f(S)=6, A 7, B 8, D 8, G 8. BFS (goal at generation): S–A–C–G = 11.</div>
+<div class="trap">✗ Bucharest added at 450 is NOT the answer: 417 was still on the frontier. ✗ Greedy picks g=400,h=50 over g=100,h=80. ✗ "Expansion order" ≠ "path returned". ✗ Don't add h along the path; only the last node's h counts.</div>
+<div class="tf"><b>Search problem = 6 parts:</b> state space, initial state, goal test, actions(s), transition model RESULT(s,a), action cost c(s,a,s′). Assumes fully observable, deterministic, known → solution is a fixed action sequence. Romania: 20 cities, 20×20 0/1 adjacency matrix. Tree search may revisit states; graph search keeps an explored set.</div></div>
+
+<div class="card small"><div class="ch"><span class="num">2</span><span class="ct">Admissible · consistent · properties</span><span class="lec">Lecture 2</span></div>
+<div class="mean">Admissible = an honest optimist: the guess is never MORE than the real remaining cost. Consistent = the guess never drops by more than the step you just paid (a triangle rule on every edge).</div>
+<div class="f">Admissible: \(h(n) \le h^*(n)\) &nbsp;·&nbsp; Consistent: \(h(n) \le c(n,n') + h(n')\) for every edge</div>
+<ol><li>Admissible: compute the true cheapest cost h* from each node to G (run UCS backwards); compare.</li><li>Consistent: check every edge in BOTH directions (edges are two-way). One failure → not consistent.</li></ol>
+<div class="ex">h(S)=16, edge S–B cost 6, h(B)=9: 16 > 6+9 = 15 → <b>not consistent</b>. Book 2: h(A)=7, h(D)=0, A–D cost 6: 7 > 6 → admissible (h*(A)=8) but not consistent.</div>
+<table><tr><th></th><th>Complete?</th><th>Cost-optimal?</th><th>Time / Space</th></tr>
+<tr><td>BFS</td><td>Yes (finite b)</td><td>only if all step costs equal</td><td>O(b^d) / O(b^d)</td></tr>
+<tr><td>DFS</td><td>No (tree); yes finite graph</td><td>No</td><td>O(b^m) / O(bm)</td></tr>
+<tr><td>UCS</td><td>Yes (costs ≥ ε &gt; 0)</td><td>Yes</td><td>O(b^(1+⌊C*/ε⌋))</td></tr>
+<tr><td>Greedy</td><td>Not always</td><td>No</td><td>O(b^m) worst</td></tr>
+<tr><td>A*</td><td>Yes</td><td>Yes (admissible tree / consistent graph)</td><td>exponential worst</td></tr></table>
+<div class="tip">★ Consistent ⇒ admissible (never the reverse). A* with h = 0 is UCS. Straight-line distance is admissible (a straight line is never longer than a road). Bigger admissible h (dominates) = fewer nodes expanded. max(h₁, h₂) of admissible heuristics is admissible. b = branching factor, d = depth of shallowest goal, m = max depth.</div>
+<div class="trap">✗ "Greedy is optimal with an admissible h" = FALSE (450 vs 418). ✗ "A* is optimal with ANY heuristic" = FALSE. ✗ "BFS returns the cheapest path" = FALSE (fewest steps).</div></div>
+
+<div class="card"><div class="ch"><span class="num">3</span><span class="ct">Local search · simulated annealing · genetic algorithm</span><span class="lec">Lecture 3 · Week 3</span></div>
+<div class="mean">Here the PATH doesn't matter, only the best final STATE (a schedule, a route, a queen layout). Start somewhere and keep improving by small changes.</div>
+<div class="spot">Spot it: optimisation, objective/cost, neighbour, temperature, population, fitness, 8-queens tuple.</div>
+<div class="tf"><b>Formulate:</b> decision variables x₁…xₙ (one set = one state) · cost Q(x) or fitness R(x) · objective min cost / max fitness · successor (neighbour) function · constraints lowᵢ ≤ xᵢ ≤ highᵢ. Delivery: state = route, neighbour = swap two stops, objective = min distance, constraint = visit each once and return. 20 stops → 20! ≈ 2.4×10¹⁸ routes. Continuous: min y = x² − 4x + 7 on [−2, 6] → (x−2)² + 3 → x = 2, y = 3.</div>
+<div class="f"><b>8-queens</b> state (x₁…x₈) = row of the queen in column i · cost = # attacking pairs · pair (i, j) attacks if \(x_i = x_j\) or \(|x_i - x_j| = j - i\)</div>
+<div class="ex">cost(2,4,7,4,8,5,5,2) = 4 (rows: cols 1&8, 2&4, 6&7; diagonal: cols 3&8) · cost(2,4,6,8,3,1,7,5) = 0 · all in one row or one diagonal = 28 = C(8,2) · cost(1,3,5,7,2,4,6,8) = 1. Each state has 8×7 = <b>56</b> neighbours; <b>92</b> solutions, <b>12</b> fundamental. Hill climbing maximises f = −cost.</div>
+<b>Hill climbing</b> (steepest ascent): move to the BEST neighbour; stop when no neighbour is better. Stuck at local maxima, ridges, plateaus/shoulders → random restarts.
+<div class="f"><b>Simulated annealing:</b> better move → always accept; worse by Δ &gt; 0 → accept with \(P = e^{-\Delta/T}\)</div>
+<table class="mini"><tr><th>Δ/T</th><td>0.1</td><td>0.2</td><td>0.5</td><td>1</td><td>2</td><td>3</td></tr><tr><th>P</th><td>.905</td><td>.819</td><td>.607</td><td>.368</td><td>.135</td><td>.050</td></tr></table>
+<div class="ex">Δ = 10, T = 20 → e^(−0.5) = 0.61; same move at T = 5 → e^(−2) = 0.14 (cooler = pickier). Improves by 5 → P = 1.</div>
+<div class="tf">High T explores (random walk); T → 0 = hill climbing. Cooling too fast → trapped like hill climbing; too slow → many iterations; sensitive to start T and schedule; runs differ; escapes local optima but NO guarantee of the global optimum in one run. Named after annealing metal; minimises "energy".</div>
+<div class="f"><b>Roulette:</b> \(P_i = f_i / \sum_j f_j\) &nbsp;·&nbsp; <b>Tournament k:</b> pick k at random, fittest wins</div>
+<div class="ex">f = 24, 23, 20, 11 (total 78) → P = 0.31, 0.29, 0.26, 0.14. Sorted cumulative: x4 [0,11) x3 [11,31) x2 [31,54) x1 [54,78] → randoms 15, 42, 51, 69 pick <b>x3, x2, x2, x1</b> (same with 0.14/0.40/0.69/1.0 and 0.164, 0.416, 0.607, 0.894). Tournament k=3 on A70 B55 C40 D30 E20 F10: {A,C,E}→A, {B,D,F}→B, {C,D,E}→C.</div>
+<div class="tf">GA (Holland 1975): individual = chromosome (bit string) · selection (fitter more likely) → crossover (combine two parents: 110|01 + 001|11 → 110|11, 001|01) → mutation (flip a bit, keeps diversity) → elitism (copy the best). Factors: population size, representation, mixing number (parents, usually 2), selection, recombination, mutation rate, makeup of next generation. Bigger k = more selection pressure, less diversity. Tournament needs no normalising; fitness 0 can't be picked by roulette.</div>
+<div class="trap">✗ Use the cumulative order the question gives. ✗ "SA guarantees the global optimum" = FALSE. ✗ Local search does NOT keep the path.</div></div>
+
+<div class="card"><div class="ch"><span class="num">4</span><span class="ct">Decision tree split: entropy · IG · Gini</span><span class="lec">Lecture 4 · step-by-step sheet</span></div>
+<div class="mean">A good question (attribute) splits the examples into PURE groups. Entropy and Gini measure "mixed-up-ness": 0 = pure, max when 50/50. Information gain = how much mixed-up-ness the split removes.</div>
+<div class="spot">Spot it: [6+, 6−] at the parent, branches with counts, "IG", "Gini", "which attribute is chosen".</div>
+<div class="f">\(H = -\sum_k p_k \log_2 p_k\) &nbsp; \(\text{Gini} = 1 - \sum_k p_k^2\)<br>\(IG = H(\text{parent}) - \sum_v \frac{|S_v|}{|S|} H(S_v)\) &nbsp; Gini reduction = Gini(parent) − Σ (|Sᵥ|/|S|)·Gini(Sᵥ)</div>
+<ol><li>Parent: H and Gini.</li><li>Each branch: H and Gini (pure → 0; 50/50 → H = 1, Gini = 0.5).</li><li>Weight each by branch size ÷ parent size (<b>not</b> a plain average) and add.</li><li>Subtract from the parent. Pick the highest IG = lowest weighted Gini.</li></ol>
+<div class="ex"><b class="t">Patrons vs Type</b> (12 examples, 6+/6−: H 1, Gini 0.5)<br>Patrons: None [0+,2−] H0 G0 · Some [4+,0−] H0 G0 · Full [2+,4−] H 0.9183 G 0.4444 → weighted H = 6/12 × 0.9183 = 0.4591 → <b>IG 0.5409</b>; weighted Gini 0.2222 → <b>reduction 0.2778</b>. Type: French 1/1, Italian 1/1, Thai 2/2, Burger 2/2 → every branch H 1, G 0.5 → IG 0, reduction 0. <b>Choose Patrons.</b><br>
+<b class="t">Play tennis</b> (9+/5−): H = 0.940, Gini 0.459. IG(Outlook) 0.247 (Sunny 2/3, Overcast 4/0, Rain 3/2) · Humidity 0.152 · Wind 0.048 → Outlook.</div>
+<table class="mini"><tr><th>split</th><th>H</th><th>Gini</th><th>split</th><th>H</th><th>Gini</th><th>split</th><th>H</th><th>Gini</th></tr>
+<tr><td>1:1</td><td>1.000</td><td>.500</td><td>1:4</td><td>.722</td><td>.320</td><td>3:4</td><td>.985</td><td>.490</td></tr>
+<tr><td>1:2</td><td>.918</td><td>.444</td><td>2:3</td><td>.971</td><td>.480</td><td>3:8</td><td>.845</td><td>.397</td></tr>
+<tr><td>1:3</td><td>.811</td><td>.375</td><td>2:5</td><td>.863</td><td>.408</td><td>5:9</td><td>.940</td><td>.459</td></tr>
+<tr><td>1:5</td><td>.650</td><td>.278</td><td>2:7</td><td>.764</td><td>.346</td><td>pure</td><td>0</td><td>0</td></tr></table>
+<div class="tip">★ Same ratio in every child as in the parent → IG = 0. 3 classes (7,4,4): Gini = 1 − (49+16+16)/225 = 0.64; H = 1.530 (log₂3 = 1.585 is the max for 3 classes, 2 bits for 4).</div>
+<div class="tf">ID3 = information gain (multiway) · C4.5 = gain ratio + pruning (fixes IG's bias to many-valued attributes) · CART = Gini (classification) / MSE (regression), binary splits, used by scikit-learn. Leaf = class (or average for regression). Deep trees overfit → max_depth, min_samples_leaf, pruning (ccp_alpha). Every root→leaf path is an if-then rule.</div>
+<div class="trap">✗ IG can never be negative. ✗ A pure branch has entropy 0, not 1. ✗ Plain average of child entropies (unless sizes are equal).</div></div>
