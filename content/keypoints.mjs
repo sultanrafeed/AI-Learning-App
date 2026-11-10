@@ -62,4 +62,29 @@ const o = (src, cov, x = {}) => ({ src, cov: [].concat(cov), tags: ["keypoints"]
   out.trees = A.out;
 }
 
+// ---------------- Attention key-points sheet ----------------
+{ const ATT = "Key points about Attention: weighted value aggregation";
+  const A = makeAuthor("attn", ATT);
+  A.blanks("kp-a-a", "Easy", "Sheet method. Weights 0.4 and 0.6; values [5, 1] and [0, 3]. Output = [___, ___].", ["1st", "2nd"], ["2", "2.2"], null, "[0.4·5 + 0.6·0, 0.4·1 + 0.6·3].", o(ATT, "attn-aggregate", { calc: true, steps: ["1st: 2 + 0 = 2", "2nd: 0.4 + 1.8 = 2.2"] }));
+  A.blanks("kp-a-b", "Medium", "Weights 0.5, 0.25, 0.25; values [4, 0, 2], [0, 8, 4], [2, 2, 2]. Output = [___, ___, ___].", ["1st", "2nd", "3rd"], ["2.5", "2.5", "2.5"], null, "Component by component.", o(ATT, "attn-aggregate", { calc: true, steps: ["1st: 2 + 0 + 0.5 = 2.5", "2nd: 0 + 2 + 0.5 = 2.5", "3rd: 1 + 1 + 0.5 = 2.5"] }));
+  A.mcq("kp-a-max", "Medium", "Weights 0.3 and 0.7; values [2, 0] and [0, 2]. A student answers [0, 2] (the value with the largest weight). The mistake is:", "selecting only the largest-weight vector instead of the weighted sum", [["adding the unweighted vectors", "That would give [2, 2]."], ["using the wrong order", "Order is fine."], ["nothing: [0, 2] is correct", "Correct output is [0.6, 1.4]."]], "Every value vector contributes in proportion to its weight.", o(ATT, "attn-aggregate", { trap: true }));
+  A.mcq("kp-a-sum", "Medium", "Same weights and values. Another student answers [2, 2]. The mistake is:", "adding the value vectors without multiplying by their weights", [["picking the largest weight", "That gives [0, 2]."], ["normalising twice", "No normalising here."], ["nothing", "Correct is [0.6, 1.4]."]], "Weight first, then add.", o(ATT, "attn-aggregate", { trap: true }));
+  A.tf("kp-a-len", "Easy", "The attention output has the same number of components as each value vector.", true, "Corresponding components are added.", "Output length = value length.", o(ATT, "attn-aggregate", { trap: false }));
+  A.tf("kp-a-norm", "Easy", "Normalised attention weights sum to one.", true, "They come from a softmax.", "Weights add to 1.", o(ATT, "attn-softmax", { trap: false }));
+  A.blank("kp-a-miss", "Medium", "Normalised weights for three values are 0.2, 0.5 and ___.", "0.3", [], "They must sum to 1.", o(ATT, "attn-softmax", { calc: true }));
+  out.attn = A.out;
+}
+
+// ---------------- Lecture 11 class activity spreadsheets ----------------
+{ const SRC = "Lecture 11 class activity spreadsheets (experiments table, full joint probability table)";
+  const A = makeAuthor("bayes", SRC);
+  const N = "99,995,505,198";
+  A.blank("act-row", "Medium", `Activity 2: the experiments total N = ${N}. The event (JohnCalls, MaryCalls, Alarm, Burglary, Earthquake) = (T, F, T, T, F) occurred 25,329,240 times. Its probability = ___ (3 s.f., e.g. 1.23e-4).`, "2.53e-4", ["0.000253"], "P(event) = occurrences / total experiments.", o(SRC, "bayes-joint-table", { calc: true, tol: 6e-7 }));
+  A.blank("act-rows", "Easy", "The full joint table for the five binary burglary variables has ___ rows.", "32", [], "2⁵.", o(SRC, "bayes-joint-table", { calc: true }));
+  A.blanks("act-post", "Hard", "Activity: compute P(Burglary | JohnCalls = T, MaryCalls = F) from the full joint table. Summing the rows with J = T, M = F gives 0.000256774 for B = T and 0.049798101 for B = F. P(b | j, ¬m) = ___ (4 d.p.); P(¬b | j, ¬m) = ___ (4 d.p.).", ["P(b|j,¬m)", "P(¬b|j,¬m)"], ["0.0051", "0.9949"], null, "Filter, group by B, sum, normalise.", o(SRC, ["bayes-joint-table", "bayes-enumeration"], { calc: true, steps: ["0.000256774/(0.000256774 + 0.049798101) = 0.00513", "1 − 0.00513 = 0.99487"] }));
+  A.multi("act-steps", "Medium", "Which steps compute P(Burglary | j, ¬m) from the full joint table?", [["keep only rows with JohnCalls = T and MaryCalls = F", true, "filter"], ["split the kept rows into B = T and B = F", true, "group"], ["add the probabilities in each group (summing over A and E)", true, "marginalise"], ["divide each sum by the total of both sums", true, "normalise"], ["multiply all 32 rows together", false, "rows are added, not multiplied"]], "Filter → group → marginalise → normalise.", o(SRC, "bayes-joint-table"));
+  A.tf("act-sum1", "Easy", "The 32 probabilities of the full joint table add up to 1 (apart from rounding).", true, "Every possible event is listed once.", "Joint table sums to 1.", o(SRC, "bayes-joint-table", { trap: false }));
+  out.bayes = A.out;
+}
+
 export const keypoints = out;

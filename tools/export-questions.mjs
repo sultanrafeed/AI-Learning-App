@@ -53,6 +53,28 @@ const fmtAns = (q) => {
   if (q.type === "MATCH") return Object.entries(q.answer).map(([k, v]) => `${k} → ${v}`).join(", ");
   return JSON.stringify(q.answer);
 };
+function fmtQ(q, label) {
+  let body = "";
+      body += `\n### ${label}. [${q.type} · ${q.difficulty}${q.isCalculation ? " · calculation" : ""}]\n`;
+      if (q.visual) { const v = clean(q.visual); if (v) body += `\n${v}\n`; }
+      body += `\n${clean(q.stem)}\n`;
+      if (q.type === "MCQ" || q.type === "MULTI") body += "\n" + q.options.map((o, i) => `  ${L[i]}. ${clean(o)}`).join("\n") + "\n";
+      if (q.type === "BLANKS" && q.blanks) body += "\n" + q.blanks.map((b, i) => `  (${i + 1}) ${clean(b)} = ____`).join("\n") + "\n";
+      if (q.type === "MATCH") body += "\n" + q.left.map((l, i) => `  ${i + 1}. ${clean(l)}`).join("\n") + "\n\n" + q.right.map((r, i) => `  ${L[i]}. ${clean(r)}`).join("\n") + "\n";
+      body += `\n**Answer:** ${fmtAns(q)}\n`;
+      if (q.acceptedAnswers && q.type === "BLANK" && q.acceptedAnswers.length > 1) body += `(Also accepted: ${q.acceptedAnswers.filter((a) => a !== q.answer).map(String).join(", ")})\n`;
+      const why = q.type === "TF" && q.why ? [clean(q.why)] : [];
+      const steps = (q.solutionSteps || []).map(clean).filter((s) => s && !why.includes(s));
+      if (why.length) body += `\n**Why:** ${why[0]}\n`;
+      if (steps.length) body += `\n**Working:**\n` + steps.map((s) => `  - ${s}`).join("\n") + "\n";
+      if (q.whyWrong && Object.keys(q.whyWrong).length) {
+        const ww = Object.entries(q.whyWrong).filter(([, v]) => v).map(([k2, v]) => `  - ${k2}: ${clean(v)}`);
+        if (ww.length) body += `\n**Option notes:**\n${ww.join("\n")}\n`;
+      }
+      if (q.takeaway) body += `\n**Takeaway:** ${clean(q.takeaway)}\n`;
+      body += `\n*Source: ${clean(q.source)}*\n`;
+  return body;
+}
 const isGen = (q) => /-\d{4,}$/.test(q.id);
 const ARG = process.argv[3] || ""; // optional: a difficulty ("Exam+") or "ids:<file.json>" (list of question ids)
 const IDS = ARG.startsWith("ids:") ? new Set(JSON.parse(fs.readFileSync(ARG.slice(4)))) : null;
@@ -74,24 +96,7 @@ for (const t of idx.topics) {
     let k = 0;
     for (const q of list) {
       k++; n++;
-      body += `\n### ${t.id.toUpperCase()} ${title[5]}${k}. [${q.type} · ${q.difficulty}${q.isCalculation ? " · calculation" : ""}]\n`;
-      if (q.visual) { const v = clean(q.visual); if (v) body += `\n${v}\n`; }
-      body += `\n${clean(q.stem)}\n`;
-      if (q.type === "MCQ" || q.type === "MULTI") body += "\n" + q.options.map((o, i) => `  ${L[i]}. ${clean(o)}`).join("\n") + "\n";
-      if (q.type === "BLANKS" && q.blanks) body += "\n" + q.blanks.map((b, i) => `  (${i + 1}) ${clean(b)} = ____`).join("\n") + "\n";
-      if (q.type === "MATCH") body += "\n" + q.left.map((l, i) => `  ${i + 1}. ${clean(l)}`).join("\n") + "\n\n" + q.right.map((r, i) => `  ${L[i]}. ${clean(r)}`).join("\n") + "\n";
-      body += `\n**Answer:** ${fmtAns(q)}\n`;
-      if (q.acceptedAnswers && q.type === "BLANK" && q.acceptedAnswers.length > 1) body += `(Also accepted: ${q.acceptedAnswers.filter((a) => a !== q.answer).map(String).join(", ")})\n`;
-      const why = q.type === "TF" && q.why ? [clean(q.why)] : [];
-      const steps = (q.solutionSteps || []).map(clean).filter((s) => s && !why.includes(s));
-      if (why.length) body += `\n**Why:** ${why[0]}\n`;
-      if (steps.length) body += `\n**Working:**\n` + steps.map((s) => `  - ${s}`).join("\n") + "\n";
-      if (q.whyWrong && Object.keys(q.whyWrong).length) {
-        const ww = Object.entries(q.whyWrong).filter(([, v]) => v).map(([k2, v]) => `  - ${k2}: ${clean(v)}`);
-        if (ww.length) body += `\n**Option notes:**\n${ww.join("\n")}\n`;
-      }
-      if (q.takeaway) body += `\n**Takeaway:** ${clean(q.takeaway)}\n`;
-      body += `\n*Source: ${clean(q.source)}*\n`;
+      body += fmtQ(q, `${t.id.toUpperCase()} ${title[5]}${k}`);
     }
   }
 }
@@ -100,5 +105,18 @@ const all = {}; for (const t of idx.topics) for (const q of JSON.parse(fs.readFi
 let paper = `\n\n---\n\n# 📘 Book 2 mixed practice paper (40 questions, 100 minutes): answer key\n\n`;
 idx.paper.forEach((id, i) => { const q = all[id]; paper += `${i + 1}. ${clean(q.stem).replace(/\n+/g, " ")}\n   **Answer:** ${fmtAns(q)}\n`; });
 out += counts.join("\n") + (ONLY || IDS ? "\n" : `\n- 📘 Book 2 mixed practice paper: answer key at the end\n`) + `\n**Total: ${n} questions.**\n` + body + (ONLY || IDS ? "" : paper);
+if (ARG.startsWith("pack:")) {
+  // Ordered study pack: [{title, intro, ids:[...]} | {title, md}]
+  const all2 = {}; for (const t of idx.topics) for (const q of JSON.parse(fs.readFileSync(root + `data/questions/${t.id}.json`))) all2[q.id] = q;
+  const P = JSON.parse(fs.readFileSync(ARG.slice(5)));
+  let o2 = `# ${P.title}\n\n${P.intro}\n\n## Contents\n\n` + P.sections.map((x, i) => `${i + 1}. ${x.title}${x.ids ? ` (${x.ids.length} questions)` : ""}`).join("\n") + "\n";
+  let m = 0;
+  P.sections.forEach((x, i) => {
+    o2 += `\n\n---\n\n# ${i + 1}. ${x.title}\n\n${x.intro || ""}\n`;
+    if (x.md) o2 += "\n" + x.md + "\n";
+    (x.ids || []).forEach((id, k) => { const q = all2[id]; if (!q) throw new Error("missing " + id); m++; o2 += fmtQ(q, `${i + 1}.${k + 1}`); });
+  });
+  out = o2; n = m;
+}
 fs.writeFileSync(process.argv[2], out);
 console.log(n, (out.length / 1e6).toFixed(2) + " MB");

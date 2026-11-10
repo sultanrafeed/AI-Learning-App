@@ -10,11 +10,11 @@ Part A of each topic = hand-written questions (lectures, workshops, key-points s
 - 🌳 Decision Trees (Lecture 4): 62 hand-written + 80 calculation drills
 - 📉 Supervised Learning (Lecture 4): 126 hand-written + 192 calculation drills
 - 🏰 MDPs & Reinforcement Learning (Workshop 6): 104 hand-written + 144 calculation drills
-- 🎲 Probability & Bayesian Networks (Lecture 11): 121 hand-written + 144 calculation drills
+- 🎲 Probability & Bayesian Networks (Lecture 11): 126 hand-written + 144 calculation drills
 - 🧱 CNNs & Computer Vision (Lecture 7): 102 hand-written + 128 calculation drills
 - 📦 Object Detection (IoU & NMS) (Lecture 7): 55 hand-written + 80 calculation drills
 - 🔁 Sequence Models & NLP (Lecture 8): 99 hand-written + 128 calculation drills
-- 🎯 Attention & Transformers (Lecture 8): 56 hand-written + 112 calculation drills
+- 🎯 Attention & Transformers (Lecture 8): 63 hand-written + 112 calculation drills
 - 🧠 Neural Networks (Workshop 5): 79 hand-written + 112 calculation drills
 - ⛰️ Local Search & GA (Lecture 3): 81 hand-written + 80 calculation drills
 - ✨ Generative AI (Lecture 9): 78 hand-written + 96 calculation drills
@@ -23,7 +23,7 @@ Part A of each topic = hand-written questions (lectures, workshops, key-points s
 - 🧮 Maths Toolkit (Book 3) (Book 3 · Part I): 45 hand-written + 0 calculation drills
 - 📘 Book 2 mixed practice paper: answer key at the end
 
-**Total: 2888 questions.**
+**Total: 2900 questions.**
 
 
 ---
@@ -22020,7 +22020,7 @@ An ADP agent counts observed transitions (table). Estimate P((4,3) | (3,3), Righ
 
 # 🎲 Probability & Bayesian Networks (Lecture 11)
 
-## Part A: hand-written questions (121)
+## Part A: hand-written questions (126)
 
 ### BAYES A1. [MATCH · Medium]
 
@@ -24557,6 +24557,139 @@ AIMA burglary example: P(j, m, a, ¬b, ¬e) = 0.90 × 0.70 × 0.001 × 0.999 × 
 **Takeaway:** Prune irrelevant leaves.
 
 *Source: AIMA 4th ed. (Russell & Norvig 2022), Ch. 13: variable elimination*
+
+### BAYES A122. [BLANK · Medium · calculation]
+
+[Diagram as text] Edges (label in brackets): Burglary — Alarm; Earthquake — Alarm; Alarm — JohnCalls; Alarm — MaryCalls
+
+    P(B) | P(E)
+    .001 | .002
+
+    B | E | P(A=t | B,E)
+    t | t | .95
+    t | f | .94
+    f | t | .29
+    f | f | .001
+
+    A | P(J=t | A) | P(M=t | A)
+    t | .90 | .70
+    f | .05 | .01
+
+Activity 2: the experiments total N = 99,995,505,198. The event (JohnCalls, MaryCalls, Alarm, Burglary, Earthquake) = (T, F, T, T, F) occurred 25,329,240 times. Its probability = ___ (3 s.f., e.g. 1.23e-4).
+
+**Answer:** 2.53e-4
+(Also accepted: 0.000253)
+
+**Takeaway:** P(event) = occurrences / total experiments.
+
+*Source: Lecture 11 class activity spreadsheets (experiments table, full joint probability table)*
+
+### BAYES A123. [BLANK · Easy · calculation]
+
+[Diagram as text] Edges (label in brackets): Burglary — Alarm; Earthquake — Alarm; Alarm — JohnCalls; Alarm — MaryCalls
+
+    P(B) | P(E)
+    .001 | .002
+
+    B | E | P(A=t | B,E)
+    t | t | .95
+    t | f | .94
+    f | t | .29
+    f | f | .001
+
+    A | P(J=t | A) | P(M=t | A)
+    t | .90 | .70
+    f | .05 | .01
+
+The full joint table for the five binary burglary variables has ___ rows.
+
+**Answer:** 32
+
+**Takeaway:** 2⁵.
+
+*Source: Lecture 11 class activity spreadsheets (experiments table, full joint probability table)*
+
+### BAYES A124. [BLANKS · Hard · calculation]
+
+[Diagram as text] Edges (label in brackets): Burglary — Alarm; Earthquake — Alarm; Alarm — JohnCalls; Alarm — MaryCalls
+
+    P(B) | P(E)
+    .001 | .002
+
+    B | E | P(A=t | B,E)
+    t | t | .95
+    t | f | .94
+    f | t | .29
+    f | f | .001
+
+    A | P(J=t | A) | P(M=t | A)
+    t | .90 | .70
+    f | .05 | .01
+
+Activity: compute P(Burglary | JohnCalls = T, MaryCalls = F) from the full joint table. Summing the rows with J = T, M = F gives 0.000256774 for B = T and 0.049798101 for B = F. P(b | j, ¬m) = ___ (4 d.p.); P(¬b | j, ¬m) = ___ (4 d.p.).
+
+  (1) P(b|j,¬m) = ____
+  (2) P(¬b|j,¬m) = ____
+
+**Answer:** P(b|j,¬m) = 0.0051; P(¬b|j,¬m) = 0.9949
+
+**Working:**
+  - 0.000256774/(0.000256774 + 0.049798101) = 0.00513
+  - 1 − 0.00513 = 0.99487
+
+**Takeaway:** Filter, group by B, sum, normalise.
+
+*Source: Lecture 11 class activity spreadsheets (experiments table, full joint probability table)*
+
+### BAYES A125. [MULTI · Medium]
+
+[Diagram as text] Edges (label in brackets): Burglary — Alarm; Earthquake — Alarm; Alarm — JohnCalls; Alarm — MaryCalls
+
+    P(B) | P(E)
+    .001 | .002
+
+    B | E | P(A=t | B,E)
+    t | t | .95
+    t | f | .94
+    f | t | .29
+    f | f | .001
+
+    A | P(J=t | A) | P(M=t | A)
+    t | .90 | .70
+    f | .05 | .01
+
+Which steps compute P(Burglary | j, ¬m) from the full joint table? (Select ALL that apply.)
+
+  A. add the probabilities in each group (summing over A and E)
+  B. multiply all 32 rows together
+  C. keep only rows with JohnCalls = T and MaryCalls = F
+  D. split the kept rows into B = T and B = F
+  E. divide each sum by the total of both sums
+
+**Answer:** A. add the probabilities in each group (summing over A and E); C. keep only rows with JohnCalls = T and MaryCalls = F; D. split the kept rows into B = T and B = F; E. divide each sum by the total of both sums
+
+**Option notes:**
+  - A: Correct: marginalise
+  - B: Incorrect: rows are added, not multiplied
+  - C: Correct: filter
+  - D: Correct: group
+  - E: Correct: normalise
+
+**Takeaway:** Filter → group → marginalise → normalise.
+
+*Source: Lecture 11 class activity spreadsheets (experiments table, full joint probability table)*
+
+### BAYES A126. [TF · Easy]
+
+The 32 probabilities of the full joint table add up to 1 (apart from rounding).
+
+**Answer:** True
+
+**Why:** Every possible event is listed once.
+
+**Takeaway:** Joint table sums to 1.
+
+*Source: Lecture 11 class activity spreadsheets (experiments table, full joint probability table)*
 
 ## Part B: calculation drills (144)
 
@@ -39644,7 +39777,7 @@ Token IDs are 0–5 as shown, |V| = 6. Give the one-hot vector for "ship" (6 dig
 
 # 🎯 Attention & Transformers (Lecture 8)
 
-## Part A: hand-written questions (56)
+## Part A: hand-written questions (63)
 
 ### ATTN A1. [MCQ · Medium]
 
@@ -40601,6 +40734,116 @@ In a transformer decoder used for generation, masked self-attention:
 **Takeaway:** Causal mask.
 
 *Source: AIMA 4th ed. (Russell & Norvig 2022), Ch. 24: transformer decoder*
+
+### ATTN A57. [BLANKS · Easy · calculation]
+
+Sheet method. Weights 0.4 and 0.6; values [5, 1] and [0, 3]. Output = [___, ___].
+
+  (1) 1st = ____
+  (2) 2nd = ____
+
+**Answer:** 1st = 2; 2nd = 2.2
+
+**Working:**
+  - 1st: 2 + 0 = 2
+  - 2nd: 0.4 + 1.8 = 2.2
+
+**Takeaway:** [0.4·5 + 0.6·0, 0.4·1 + 0.6·3].
+
+*Source: Key points about Attention: weighted value aggregation*
+
+### ATTN A58. [BLANKS · Medium · calculation]
+
+Weights 0.5, 0.25, 0.25; values [4, 0, 2], [0, 8, 4], [2, 2, 2]. Output = [___, ___, ___].
+
+  (1) 1st = ____
+  (2) 2nd = ____
+  (3) 3rd = ____
+
+**Answer:** 1st = 2.5; 2nd = 2.5; 3rd = 2.5
+
+**Working:**
+  - 1st: 2 + 0 + 0.5 = 2.5
+  - 2nd: 0 + 2 + 0.5 = 2.5
+  - 3rd: 1 + 1 + 0.5 = 2.5
+
+**Takeaway:** Component by component.
+
+*Source: Key points about Attention: weighted value aggregation*
+
+### ATTN A59. [MCQ · Medium]
+
+Weights 0.3 and 0.7; values [2, 0] and [0, 2]. A student answers [0, 2] (the value with the largest weight). The mistake is:
+
+  A. using the wrong order
+  B. selecting only the largest-weight vector instead of the weighted sum
+  C. adding the unweighted vectors
+  D. nothing: [0, 2] is correct
+
+**Answer:** B. selecting only the largest-weight vector instead of the weighted sum
+
+**Option notes:**
+  - A: Order is fine.
+  - C: That would give [2, 2].
+  - D: Correct output is [0.6, 1.4].
+
+**Takeaway:** Every value vector contributes in proportion to its weight.
+
+*Source: Key points about Attention: weighted value aggregation*
+
+### ATTN A60. [MCQ · Medium]
+
+Same weights and values. Another student answers [2, 2]. The mistake is:
+
+  A. adding the value vectors without multiplying by their weights
+  B. picking the largest weight
+  C. normalising twice
+  D. nothing
+
+**Answer:** A. adding the value vectors without multiplying by their weights
+
+**Option notes:**
+  - B: That gives [0, 2].
+  - C: No normalising here.
+  - D: Correct is [0.6, 1.4].
+
+**Takeaway:** Weight first, then add.
+
+*Source: Key points about Attention: weighted value aggregation*
+
+### ATTN A61. [TF · Easy]
+
+The attention output has the same number of components as each value vector.
+
+**Answer:** True
+
+**Why:** Corresponding components are added.
+
+**Takeaway:** Output length = value length.
+
+*Source: Key points about Attention: weighted value aggregation*
+
+### ATTN A62. [TF · Easy]
+
+Normalised attention weights sum to one.
+
+**Answer:** True
+
+**Why:** They come from a softmax.
+
+**Takeaway:** Weights add to 1.
+
+*Source: Key points about Attention: weighted value aggregation*
+
+### ATTN A63. [BLANK · Medium · calculation]
+
+Normalised weights for three values are 0.2, 0.5 and ___.
+
+**Answer:** 0.3
+
+**Takeaway:** They must sum to 1.
+
+*Source: Key points about Attention: weighted value aggregation*
 
 ## Part B: calculation drills (112)
 
