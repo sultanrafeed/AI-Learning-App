@@ -7,13 +7,13 @@ Part A of each topic = hand-written questions (lectures, workshops, key-points s
 ## Contents
 
 - 🧭 Classical Search (Lecture 2): 120 hand-written + 176 calculation drills
-- 🌳 Decision Trees (Lecture 4): 54 hand-written + 80 calculation drills
+- 🌳 Decision Trees (Lecture 4): 62 hand-written + 80 calculation drills
 - 📉 Supervised Learning (Lecture 4): 126 hand-written + 192 calculation drills
 - 🏰 MDPs & Reinforcement Learning (Workshop 6): 104 hand-written + 144 calculation drills
 - 🎲 Probability & Bayesian Networks (Lecture 11): 121 hand-written + 144 calculation drills
-- 🧱 CNNs & Computer Vision (Lecture 7): 94 hand-written + 128 calculation drills
-- 📦 Object Detection (IoU & NMS) (Lecture 7): 46 hand-written + 80 calculation drills
-- 🔁 Sequence Models & NLP (Lecture 8): 92 hand-written + 128 calculation drills
+- 🧱 CNNs & Computer Vision (Lecture 7): 102 hand-written + 128 calculation drills
+- 📦 Object Detection (IoU & NMS) (Lecture 7): 55 hand-written + 80 calculation drills
+- 🔁 Sequence Models & NLP (Lecture 8): 99 hand-written + 128 calculation drills
 - 🎯 Attention & Transformers (Lecture 8): 56 hand-written + 112 calculation drills
 - 🧠 Neural Networks (Workshop 5): 79 hand-written + 112 calculation drills
 - ⛰️ Local Search & GA (Lecture 3): 81 hand-written + 80 calculation drills
@@ -23,7 +23,7 @@ Part A of each topic = hand-written questions (lectures, workshops, key-points s
 - 🧮 Maths Toolkit (Book 3) (Book 3 · Part I): 45 hand-written + 0 calculation drills
 - 📘 Book 2 mixed practice paper: answer key at the end
 
-**Total: 2856 questions.**
+**Total: 2888 questions.**
 
 
 ---
@@ -7154,7 +7154,7 @@ Give the path cost returned by each, in the order UCS, Greedy, A* (integers).
 
 # 🌳 Decision Trees (Lecture 4)
 
-## Part A: hand-written questions (54)
+## Part A: hand-written questions (62)
 
 ### TREES A1. [MCQ · Easy]
 
@@ -8082,6 +8082,148 @@ AIMA restaurant data (12 examples, 6+/6−): Gain(Patrons) ≈ ___ bits (3 d.p.)
 **Takeaway:** Avoid fitting noise.
 
 *Source: AIMA 4th ed. (Russell & Norvig 2022), Ch. 19: pruning*
+
+### TREES A55. [BLANKS · Easy · calculation]
+
+Step 1 of the sheet: parent set of 12 (6 positive: 1, 3, 4, 6, 8, 12; 6 negative). Entropy(Parent) = ___ bit; Gini(Parent) = ___ (4 d.p.).
+
+  (1) entropy = ____
+  (2) Gini = ____
+
+**Answer:** entropy = 1.0000; Gini = 0.5000
+
+**Takeaway:** p(pos) = p(neg) = 0.5.
+
+*Source: Comparing two attributes to split (Type vs Patrons) step-by-step sheet*
+
+### TREES A56. [BLANKS · Medium · calculation]
+
+Type branches: French 2 (1+,1−), Italian 2 (1+,1−), Thai 4 (2+,2−), Burger 4 (2+,2−). Each branch entropy = ___; weighted child entropy = ___; IG(Type) = ___.
+
+  (1) branch H = ____
+  (2) weighted = ____
+  (3) IG = ____
+
+**Answer:** branch H = 1; weighted = 1; IG = 0
+
+**Working:**
+  - H = −0.5 log₂0.5 − 0.5 log₂0.5 = 1
+  - 2/12 + 2/12 + 4/12 + 4/12 = 1.0
+  - IG = 1 − 1 = 0
+
+**Takeaway:** Every branch is 50/50.
+
+*Source: Comparing two attributes to split (Type vs Patrons) step-by-step sheet*
+
+### TREES A57. [BLANKS · Medium · calculation]
+
+Type: each branch Gini = ___; weighted child Gini = ___; Gini reduction = ___ (4 d.p.).
+
+  (1) branch Gini = ____
+  (2) weighted = ____
+  (3) reduction = ____
+
+**Answer:** branch Gini = 0.5000; weighted = 0.5000; reduction = 0.0000
+
+**Takeaway:** No improvement.
+
+*Source: Comparing two attributes to split (Type vs Patrons) step-by-step sheet*
+
+### TREES A58. [BLANKS · Medium · calculation]
+
+[Diagram as text] Labels: Patrons? · [6+, 6−] · None · [0+, 2−] · Some · [4+, 0−] · Full · [2+, 4−]
+
+    [Diagram as text] Labels: Type? · [6+, 6−] · French · [1+, 1−] · Italian · [1+, 1−] · Thai · [2+, 2−] · Burger · [2+, 2−]
+Restaurant data (Lecture 4, 12 examples, WillWait 6 yes / 6 no).
+
+Patrons branches: None 2 (0+,2−), Some 4 (4+,0−), Full 6 (2+,4−). H(None) = ___, H(Some) = ___, H(Full) = ___ (4 d.p.); weighted child entropy = ___; IG(Patrons) = ___.
+
+  (1) H(None) = ____
+  (2) H(Some) = ____
+  (3) H(Full) = ____
+  (4) weighted = ____
+  (5) IG = ____
+
+**Answer:** H(None) = 0; H(Some) = 0; H(Full) = 0.9183; weighted = 0.4591; IG = 0.5409
+
+**Working:**
+  - H(Full) = −(1/3)log₂(1/3) − (2/3)log₂(2/3) = 0.9183
+  - weighted = 6/12 × 0.9183 = 0.4591
+  - IG = 1 − 0.4591 = 0.5409
+
+**Takeaway:** Pure branches have entropy 0.
+
+*Source: Comparing two attributes to split (Type vs Patrons) step-by-step sheet*
+
+### TREES A59. [BLANKS · Medium · calculation]
+
+[Diagram as text] Labels: Patrons? · [6+, 6−] · None · [0+, 2−] · Some · [4+, 0−] · Full · [2+, 4−]
+
+    [Diagram as text] Labels: Type? · [6+, 6−] · French · [1+, 1−] · Italian · [1+, 1−] · Thai · [2+, 2−] · Burger · [2+, 2−]
+Restaurant data (Lecture 4, 12 examples, WillWait 6 yes / 6 no).
+
+Patrons Gini: Gini(Full) = ___; weighted child Gini = ___; Gini reduction = ___ (4 d.p.).
+
+  (1) Gini(Full) = ____
+  (2) weighted = ____
+  (3) reduction = ____
+
+**Answer:** Gini(Full) = 0.4444; weighted = 0.2222; reduction = 0.2778
+
+**Takeaway:** 1 − (1/3)² − (2/3)².
+
+*Source: Comparing two attributes to split (Type vs Patrons) step-by-step sheet*
+
+### TREES A60. [MCQ · Easy]
+
+Final step of the sheet: which attribute is picked, and by which criteria?
+
+  A. Type, because it has more values
+  B. neither: the gains tie
+  C. Patrons, by both information gain (0.5409 > 0) and Gini reduction (0.2778 > 0)
+  D. Patrons by IG but Type by Gini
+
+**Answer:** C. Patrons, by both information gain (0.5409 > 0) and Gini reduction (0.2778 > 0)
+
+**Option notes:**
+  - A: More values does not mean more gain.
+  - B: They do not tie.
+  - D: Both criteria agree.
+
+**Takeaway:** Pick the larger gain/reduction.
+
+*Source: Comparing two attributes to split (Type vs Patrons) step-by-step sheet*
+
+### TREES A61. [TF · Medium]
+
+In the sheet, the weighted child entropy for Type is the plain average (1 + 1 + 1 + 1)/4.
+
+**Answer:** False
+
+**Why:** It weights by branch size: 2/12, 2/12, 4/12, 4/12 (here it happens to give the same 1.0).
+
+**Takeaway:** Weights are |subset|/|parent|.
+
+*Source: Comparing two attributes to split (Type vs Patrons) step-by-step sheet*
+
+### TREES A62. [BLANKS · Hard · calculation]
+
+Same method, new attribute. Parent 6+/6−. Attribute Hungry splits into Yes 7 (5+,2−) and No 5 (1+,4−). IG(Hungry) = ___ and Gini reduction = ___ (4 d.p.).
+
+  (1) IG = ____
+  (2) Gini reduction = ____
+
+**Answer:** IG = 0.1957; Gini reduction = 0.1286
+
+**Working:**
+  - H(Yes) = 0.8631, H(No) = 0.7219
+  - weighted = 7/12 × 0.8631 + 5/12 × 0.7219 = 0.8043 → IG = 0.1957
+  - Gini(Yes) = 1 − (5/7)² − (2/7)² = 0.4082; Gini(No) = 0.32
+  - weighted = 7/12 × 0.4082 + 5/12 × 0.32 = 0.3714 → reduction 0.1286
+
+**Takeaway:** B(5/7) = 0.8631, B(1/5) = 0.7219.
+
+*Source: Comparing two attributes to split (Type vs Patrons) step-by-step sheet*
 
 ## Part B: calculation drills (80)
 
@@ -27805,7 +27947,7 @@ A coin is tossed and a fair 4-sided die is rolled. P(Head and 4)?
 
 # 🧱 CNNs & Computer Vision (Lecture 7)
 
-## Part A: hand-written questions (94)
+## Part A: hand-written questions (102)
 
 ### CNN A1. [MCQ · Easy]
 
@@ -29427,6 +29569,119 @@ A pooling layer with stride s downsamples its input by a factor of about s.
 **Takeaway:** r = 3 + (3 − 1) × 2.
 
 *Source: AIMA 4th ed. (Russell & Norvig 2022), Ch. 21: receptive fields*
+
+### CNN A95. [BLANK · Easy · calculation]
+
+Sheet rule: a 3 by 3 filter on RGB input contains ___ weights.
+
+**Answer:** 27
+
+**Takeaway:** 3 × 3 × 3: each filter spans all input channels.
+
+*Source: Key points about convolution filters and parameter counts*
+
+### CNN A96. [BLANK · Medium · calculation]
+
+Four 5 by 5 filters on RGB input, one bias per filter. Trainable parameters = ___.
+
+**Answer:** 304
+
+**Working:**
+  - 5 × 5 × 3 = 75
+  - + 1 bias = 76
+  - × 4 filters = 304
+
+**Takeaway:** (5 × 5 × 3 + 1) × 4.
+
+*Source: Key points about convolution filters and parameter counts*
+
+### CNN A97. [BLANK · Medium · calculation]
+
+Eight 3 by 3 filters on an input with 16 channels, no bias. Trainable parameters = ___.
+
+**Answer:** 1152
+(Also accepted: 1,152)
+
+**Working:**
+  - 3 × 3 × 16 = 144
+  - × 8 = 1152
+
+**Takeaway:** No bias stated → no +1.
+
+*Source: Key points about convolution filters and parameter counts*
+
+### CNN A98. [BLANK · Medium · calculation]
+
+Two 3 by 3 filters on a greyscale (1-channel) input, one bias per filter. Trainable parameters = ___.
+
+**Answer:** 20
+
+**Takeaway:** (9 + 1) × 2.
+
+*Source: Key points about convolution filters and parameter counts*
+
+### CNN A99. [BLANK · Easy]
+
+Sheet rule: a layer with 6 filters produces ___ output feature maps (output channels).
+
+**Answer:** 6
+
+**Takeaway:** One map per filter.
+
+*Source: Key points about convolution filters and parameter counts*
+
+### CNN A100. [TF · Medium]
+
+Moving from a 32 × 32 to a 224 × 224 RGB image changes the parameter count of a layer of two 3 × 3 filters (with biases).
+
+**Answer:** False
+
+**Why:** Still (27 + 1) × 2 = 56: weights are reused across positions.
+
+**Takeaway:** Image size never adds parameters.
+
+*Source: Key points about convolution filters and parameter counts*
+
+### CNN A101. [MCQ · Medium]
+
+A student computes two 3 by 3 filters on RGB (with biases) as (3 × 3 + 1) × 2 = 20. The mistake is:
+
+  A. multiplying by the number of filters
+  B. adding the bias
+  C. using the image size
+  D. forgetting that each filter spans all 3 input channels
+
+**Answer:** D. forgetting that each filter spans all 3 input channels
+
+**Option notes:**
+  - A: That step is correct.
+  - B: The bias was specified.
+  - C: They did not.
+
+**Takeaway:** Correct: (27 + 1) × 2 = 56.
+
+*Source: Key points about convolution filters and parameter counts*
+
+### CNN A102. [MULTI · Easy]
+
+The sheet's recipe for counting parameters (select all steps): (Select ALL that apply.)
+
+  A. multiply by the number of image positions
+  B. add one bias per filter if specified
+  C. multiply by the number of filters
+  D. multiply filter height × width × input channels
+
+**Answer:** B. add one bias per filter if specified; C. multiply by the number of filters; D. multiply filter height × width × input channels
+
+**Option notes:**
+  - A: Incorrect: weights are shared across positions
+  - B: Correct:
+  - C: Correct:
+  - D: Correct:
+
+**Takeaway:** Three steps.
+
+*Source: Key points about convolution filters and parameter counts*
 
 ## Part B: calculation drills (128)
 
@@ -32218,7 +32473,7 @@ An image 32×32×1 is flattened and fed to a dense layer of 500 units (ignore bi
 
 # 📦 Object Detection (IoU & NMS) (Lecture 7)
 
-## Part A: hand-written questions (46)
+## Part A: hand-written questions (55)
 
 ### DETECT A1. [MCQ · Easy]
 
@@ -32977,6 +33232,177 @@ Detection quality on a test image is usually measured by:
 **Takeaway:** IoU ≥ threshold = hit.
 
 *Source: AIMA 4th ed. (Russell & Norvig 2022), Ch. 25: evaluation*
+
+### DETECT A47. [BLANKS · Medium · calculation]
+
+Sheet method. A has corners (1, 2) and (7, 6); B has corners (4, 3) and (9, 8). Fill in: overlap width, overlap height, intersection, union, IoU (3 d.p.).
+
+  (1) width = ____
+  (2) height = ____
+  (3) intersection = ____
+  (4) union = ____
+  (5) IoU = ____
+
+**Answer:** width = 3; height = 3; intersection = 9; union = 40; IoU = 0.225
+
+**Working:**
+  - width = min(7, 9) − max(1, 4) = 3
+  - height = min(6, 8) − max(2, 3) = 3
+  - intersection 9
+  - areas 6 × 4 = 24 and 5 × 5 = 25 → union 24 + 25 − 9 = 40
+  - IoU = 9/40 = 0.225
+
+**Takeaway:** Shared width = min(x₂) − max(x₁); shared height = min(y₂) − max(y₁).
+
+*Source: Key points about IoU and non-max suppression*
+
+### DETECT A48. [BLANKS · Medium · calculation]
+
+A (0, 0)–(5, 5), B (1, 1)–(6, 6). Intersection ___, union ___, IoU ___ (3 d.p.).
+
+  (1) intersection = ____
+  (2) union = ____
+  (3) IoU = ____
+
+**Answer:** intersection = 16; union = 34; IoU = 0.471
+
+**Working:**
+  - overlap 4 × 4 = 16
+  - 25 + 25 − 16 = 34
+  - 16/34 = 0.471
+
+**Takeaway:** 4 × 4 overlap.
+
+*Source: Key points about IoU and non-max suppression*
+
+### DETECT A49. [MCQ · Easy]
+
+According to the key-points sheet, union area =
+
+  A. area of A × area of B
+  B. area of A + area of B − intersection area
+  C. area of A + area of B
+  D. the larger box's area
+
+**Answer:** B. area of A + area of B − intersection area
+
+**Option notes:**
+  - A: Areas add, not multiply.
+  - C: That counts the overlap twice.
+  - D: Only if one box contains the other.
+
+**Takeaway:** Subtract the overlap once.
+
+*Source: Key points about IoU and non-max suppression*
+
+### DETECT A50. [TF · Easy]
+
+For corner coordinates, a box's width is the larger x-coordinate minus the smaller x-coordinate.
+
+**Answer:** True
+
+**Why:** Height likewise uses y; area = width × height.
+
+**Takeaway:** Width from x, height from y.
+
+*Source: Key points about IoU and non-max suppression*
+
+### DETECT A51. [MULTI · Hard · calculation]
+
+Threshold rule: 'suppress if IoU is strictly greater than 0.40'. Car boxes: P 0.92, Q 0.85, R 0.70. IoU(P,Q) = 0.40, IoU(P,R) = 0.55, IoU(Q,R) = 0.10. Which remain? (Select ALL that apply.)
+
+  A. R
+  B. Q
+  C. P
+
+**Answer:** B. Q; C. P
+
+**Working:**
+  - Keep P.
+  - Q: 0.40 > 0.40? No → keep.
+  - R: 0.55 > 0.40 → suppress (P is kept, so R goes).
+
+**Option notes:**
+  - A: Incorrect: IoU(P, R) = 0.55 > 0.40 → suppressed
+  - B: Correct: IoU 0.40 is not strictly greater than 0.40
+  - C: Correct: highest score, kept first
+
+**Takeaway:** Equality does not trigger 'strictly greater'.
+
+*Source: Key points about IoU and non-max suppression*
+
+### DETECT A52. [MULTI · Hard · calculation]
+
+Same boxes, but the rule is now 'suppress if IoU ≥ 0.40'. Which remain? (Select ALL that apply.)
+
+  A. P
+  B. Q
+  C. R
+
+**Answer:** A. P
+
+**Option notes:**
+  - A: Correct: kept first
+  - B: Incorrect: 0.40 ≥ 0.40 → suppressed
+  - C: Incorrect: 0.55 ≥ 0.40 → suppressed
+
+**Takeaway:** Read > versus ≥ carefully.
+
+*Source: Key points about IoU and non-max suppression*
+
+### DETECT A53. [MCQ · Medium]
+
+NMS: a person box (0.70) overlaps the kept car box (0.95) with IoU 0.8, threshold 0.5. What happens to the person box?
+
+  A. it is merged with the car box
+  B. the car box is suppressed
+  C. it is kept: NMS only suppresses boxes of the same class
+  D. it is suppressed because 0.8 > 0.5
+
+**Answer:** C. it is kept: NMS only suppresses boxes of the same class
+
+**Option notes:**
+  - A: NMS deletes, it does not merge.
+  - B: The higher score is kept.
+  - D: Different classes are not compared.
+
+**Takeaway:** Same class only.
+
+*Source: Key points about IoU and non-max suppression*
+
+### DETECT A54. [MCQ · Easy]
+
+NMS starts by:
+
+  A. deleting the lowest-confidence box
+  B. keeping the highest-confidence detection
+  C. averaging all boxes
+  D. computing IoU between every pair of classes
+
+**Answer:** B. keeping the highest-confidence detection
+
+**Option notes:**
+  - A: It keeps the best first.
+  - C: No averaging.
+  - D: Same class only.
+
+**Takeaway:** Then suppress its same-class overlaps, and repeat.
+
+*Source: Key points about IoU and non-max suppression*
+
+### DETECT A55. [BLANK · Easy · calculation]
+
+Sheet example: A (0,0)–(6,4), B (2,0)–(8,4). IoU = ___ (2 d.p.).
+
+**Answer:** 0.50
+(Also accepted: 0.5, 1/2)
+
+**Working:**
+  - Each area 24; overlap 4 × 4 = 16; union 32; IoU 0.50
+
+**Takeaway:** 16/32.
+
+*Source: Key points about IoU and non-max suppression*
 
 ## Part B: calculation drills (80)
 
@@ -34804,7 +35230,7 @@ Naive detection classifies crops at 40×40 locations × 2 window scales × 3 asp
 
 # 🔁 Sequence Models & NLP (Lecture 8)
 
-## Part A: hand-written questions (92)
+## Part A: hand-written questions (99)
 
 ### SEQ A1. [MCQ · Easy]
 
@@ -36359,6 +36785,114 @@ AIMA on word embeddings: (Select ALL that apply.)
 **Takeaway:** Two directions, concatenated states.
 
 *Source: AIMA 4th ed. (Russell & Norvig 2022), Ch. 24: RNNs for NLP*
+
+### SEQ A93. [BLANKS · Medium · calculation]
+
+Current input = 3, input weight = 0.2, previous state = 0.5, recurrent weight = 0.4, no bias. Sum = ___; with tanh(0.8) supplied as 0.664, new state = ___.
+
+  (1) sum = ____
+  (2) new state = ____
+
+**Answer:** sum = 0.8; new state = 0.664
+
+**Working:**
+  - 0.6 + 0.2 = 0.8
+  - tanh(0.8) = 0.664 (supplied)
+
+**Takeaway:** 0.2 × 3 + 0.4 × 0.5.
+
+*Source: Key points about a simple RNN hidden-state update*
+
+### SEQ A94. [BLANKS · Medium · calculation]
+
+Current input = 1, input weight = 0.6, previous state = −0.5, recurrent weight = 0.4, bias 0.1. Sum = ___; with tanh(0.5) supplied as 0.462, new state = ___.
+
+  (1) sum = ____
+  (2) new state = ____
+
+**Answer:** sum = 0.5; new state = 0.462
+
+**Working:**
+  - 0.6 − 0.2 + 0.1 = 0.5
+  - tanh(0.5) = 0.462
+
+**Takeaway:** Bias is included because it is specified.
+
+*Source: Key points about a simple RNN hidden-state update*
+
+### SEQ A95. [MCQ · Hard]
+
+Current input = 2 (input weight 0.5), previous state = 0.4 (recurrent weight 0.25). A student computes 0.5 × 0.4 + 0.25 × 2 = 0.7. The mistake is:
+
+  A. mixing up the input and the previous state (each must use its own weight)
+  B. forgetting the bias
+  C. nothing: 0.7 is right
+  D. applying tanh
+
+**Answer:** A. mixing up the input and the previous state (each must use its own weight)
+
+**Option notes:**
+  - B: No bias was given.
+  - C: Correct sum is 1.1.
+  - D: tanh is required.
+
+**Takeaway:** Keep current input and previous state distinct.
+
+*Source: Key points about a simple RNN hidden-state update*
+
+### SEQ A96. [TF · Easy]
+
+The sum before the activation is the new hidden state.
+
+**Answer:** False
+
+**Why:** Apply the activation (use the supplied tanh lookup).
+
+**Takeaway:** Sum ≠ state.
+
+*Source: Key points about a simple RNN hidden-state update*
+
+### SEQ A97. [TF · Easy]
+
+The previous hidden state carries information from earlier steps of the sequence.
+
+**Answer:** True
+
+**Why:** That is how an RNN remembers.
+
+**Takeaway:** Memory = previous state.
+
+*Source: Key points about a simple RNN hidden-state update*
+
+### SEQ A98. [MCQ · Medium]
+
+When should a bias be added in the simple RNN update?
+
+  A. only for tanh
+  B. never
+  C. only if a bias is specified in the question
+  D. always add 1
+
+**Answer:** C. only if a bias is specified in the question
+
+**Option notes:**
+  - A: Activation does not decide it.
+  - B: Add it when given.
+  - D: Never assume a bias.
+
+**Takeaway:** Bias only if specified.
+
+*Source: Key points about a simple RNN hidden-state update*
+
+### SEQ A99. [BLANK · Medium · calculation]
+
+Previous state 0, input 1, input weight 1, recurrent weight 0.9, no bias; tanh(1) supplied as 0.76159. Give the new state to 2 decimal places.
+
+**Answer:** 0.76
+
+**Takeaway:** Round only the final result.
+
+*Source: Key points about a simple RNN hidden-state update*
 
 ## Part B: calculation drills (128)
 

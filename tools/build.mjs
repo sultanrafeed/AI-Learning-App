@@ -14,6 +14,7 @@ import { book2b } from "../content/book2b.mjs";
 import { paper, PAPER } from "../content/book2paper.mjs";
 import { book3, bookCards } from "../content/book3.mjs";
 import { aima } from "../content/aima.mjs";
+import { keypoints } from "../content/keypoints.mjs";
 const DEEP = { ...d1, ...d2, ...d3 };
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
@@ -25,7 +26,7 @@ const allCov = []; const glossary = []; const formulas = []; const texSheet = []
 let total = 0;
 for (const t of TOPICS) {
   const mod = await import(`../content/${t.id}.mjs`);
-  const qs = [...mod.questions, ...(extras[t.id] || []), ...(book2a[t.id] || []), ...(book2b[t.id] || []), ...(paper[t.id] || []), ...(book3[t.id] || []), ...(aima[t.id] || [])];
+  const qs = [...mod.questions, ...(extras[t.id] || []), ...(book2a[t.id] || []), ...(book2b[t.id] || []), ...(paper[t.id] || []), ...(book3[t.id] || []), ...(aima[t.id] || []), ...(keypoints[t.id] || [])];
   mod.learn.push(...(bookCards[t.id] || []));
   if (GEN[t.id]) {
     for (const k of GEN[t.id].kinds) for (let s = 1; s <= VARIANTS; s++) qs.push(GEN[t.id].fn(s * 1009 + k.length * 31, k));
